@@ -420,6 +420,33 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- RECOVERY MODAL -->
+<div id="cardModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'cardModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cardModalTitle">Novo Cartão</div>
+      <button class="modal-close" onclick="closeModal('cardModal')">×</button>
+    </div>
+    <div class="form-group"><label class="form-label">Nome do Cartão</label><input type="text" id="cardName" placeholder="Ex: Inter Visa"/></div>
+    <div class="form-group"><label class="form-label">Bandeira</label>
+      <select id="cardBrand">
+        <option value="visa">Visa</option>
+        <option value="master">Mastercard</option>
+        <option value="elo">Elo</option>
+        <option value="amex">Amex</option>
+        <option value="outros">Outros</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Dia de Fechamento</label><input type="number" id="cardClose" min="1" max="31" placeholder="Ex: 6"/></div>
+    <div class="form-group"><label class="form-label">Dia de Vencimento</label><input type="number" id="cardDue" min="1" max="31" placeholder="Ex: 12"/></div>
+    <div class="form-group"><label class="form-label">Limite (R$)</label><input type="number" id="cardLimit" placeholder="0,00"/></div>
+    <div class="form-group"><label class="form-label">Cor</label><div style="display:flex;gap:8px" id="cardColorPicker"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('cardModal')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveCard()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div id="recoveryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;padding:24px">
   <div class="gothic-lock-box" style="max-width:380px">
     <div style="font-family:var(--cinzel);font-size:15px;font-weight:700;letter-spacing:2px;margin-bottom:4px;color:var(--crimson-bright)">✝ Recuperar Acesso</div>
@@ -456,7 +483,7 @@ select option{background:var(--surface2);}
     <div class="nav-section-label">Financeiro</div>
     <button class="nav-item" data-tab="investments"><span class="nav-icon-wrap">📈</span>Investimentos</button>
     <button class="nav-item" data-tab="credit"><span class="nav-icon-wrap">💳</span>Cartões</button>
-    <button class="nav-item" data-tab="import"><span class="nav-icon-wrap">📤</span>Importar</button>
+
     <div class="sidebar-bottom">
       <button class="nav-item" data-tab="settings" style="width:100%;margin:0 0 4px"><span class="nav-icon-wrap">⚙️</span>Configurações</button>
       <div style="position:relative">
@@ -1017,9 +1044,16 @@ function addLog(type,msg){
 // THEME
 // ══════════════════════════════════════════════════
 function applyTheme(){
-  document.documentElement.setAttribute('data-theme',state.dark?'dark':'light');
+  if(state.dark){
+    document.body.classList.remove('light-mode');
+  } else {
+    document.body.classList.add('light-mode');
+  }
   const btn=document.getElementById('themeBtn');
-  if(btn)btn.textContent=state.dark?'☀️':'🌙';
+  if(btn)btn.textContent=state.dark?'☀️ Modo Claro':'🌙 Modo Escuro';
+  // Also update settings toggle if visible
+  const settingsToggle=document.querySelector('[data-theme-toggle]');
+  if(settingsToggle) settingsToggle.style.background=state.dark?'var(--crimson-bright)':'var(--border)';
 }
 function toggleTheme(){state.dark=!state.dark;saveState();applyTheme()}
 
