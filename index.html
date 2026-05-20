@@ -2797,7 +2797,7 @@ function obNext1(){
   setLocalAuth(user,p1);state.sheetPwd=p1;saveState();
   // generate and store recovery key
   const recoveryKey=generateRecoveryKey(user,p1);
-  localStorage.setItem('ff_recovery_key',recoveryKey);
+  localStorage.setItem('mm_recovery_key',recoveryKey);
   // show recovery key to user
   document.getElementById('obRecoveryKey').textContent=recoveryKey;
   document.getElementById('obRecoveryPanel').style.display='block';
@@ -2922,6 +2922,163 @@ function toggleNewDevice(){
   btn.textContent=isOpen?'📱 Novo dispositivo?':'✕ Fechar';
 }
 
+
+// ── AUTH FUNCTIONS ──
+const APP_SESSION='mm_session';
+function getLocalPwd(){return localStorage.getItem('mm_app_pwd')||''}
+function getLocalUser(){return localStorage.getItem('mm_username')||''}
+function setLocalAuth(user,pwd){localStorage.setItem('mm_username',user);localStorage.setItem('mm_app_pwd',pwd)}
+function isSessionValid(){try{const s=JSON.parse(sessionStorage.getItem(APP_SESSION)||'{}');return s.valid&&(Date.now()-s.ts)<8*60*60*1000}catch{return false}}
+function setSession(){sessionStorage.setItem(APP_SESSION,JSON.stringify({valid:true,ts:Date.now()}))}
+
+function checkAuth(){
+  if(!getLocalPwd()){showOnboarding();return}
+  if(isSessionValid()){bootApp();return}
+  showLockScreen();
+}
+
+function showLockScreen(){
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  const userEl=document.getElementById('lockUserInput');
+  if(userEl&&getLocalUser())userEl.value=getLocalUser();
+  setTimeout(()=>document.getElementById('lockPwdInput')?.focus(),150);
+}
+
+async function submitLock(){
+  const user=document.getElementById('lockUserInput').value.trim();
+  const pwd=document.getElementById('lockPwdInput').value;
+  const err=document.getElementById('lockError');
+  const btn=document.getElementById('lockBtn');
+  if(!user||!pwd){err.textContent='Preencha usuário e senha.';err.style.display='block';return}
+  if(user===getLocalUser()&&pwd===getLocalPwd()){
+    err.style.display='none';setSession();
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    if(state.sheetUrl)setTimeout(()=>restoreFromSheets(true),500);
+    return;
+  }
+  if(state.sheetUrl||document.getElementById('lockSheetUrl')?.value){
+    const sheetUrl=document.getElementById('lockSheetUrl')?.value.trim()||state.sheetUrl;
+    btn.textContent='Verificando...';btn.disabled=true;
+    try{
+      const res=await fetch(`${sheetUrl}?action=verify_auth&user=${encodeURIComponent(user)}&pwd=${encodeURIComponent(simpleHash(pwd))}`);
+      const data=await res.json();
+      if(data.valid){
+        setLocalAuth(user,pwd);
+        if(sheetUrl)state.sheetUrl=sheetUrl;
+        saveState();setSession();
+        document.getElementById('lockScreen').style.display='none';
+        document.getElementById('app').style.display='flex';
+        await restoreFromSheets(true);
+        err.style.display='none';
+      }else{err.textContent='Usuário ou senha incorretos.';err.style.display='block';}
+    }catch(e){err.textContent='Erro de conexão.';err.style.display='block';}
+    btn.textContent='✝ Entrar no Grimório';btn.disabled=false;
+  }else{
+    err.textContent='Usuário ou senha incorretos.';err.style.display='block';
+  }
+  document.getElementById('lockPwdInput').value='';
+}
+
+function simpleHash(str){let h=0;for(let i=0;i<str.length;i++)h=Math.imul(31,h)+str.charCodeAt(i)|0;return Math.abs(h).toString(36)}
+
+function generateRecoveryKey(user,pwd){
+  const base=simpleHash(user+'__RECOVERY__'+pwd+'__MM2026__');
+  const extra=simpleHash(pwd+'__'+user.split('').reverse().join(''));
+  const part1=user.toUpperCase().slice(0,5).padEnd(5,'X');
+  const part2=base.toUpperCase().slice(0,4).padEnd(4,'0');
+  const part3=extra.toUpperCase().slice(0,4).padEnd(4,'0');
+  const part4=(base+extra).toUpperCase().slice(2,6).padEnd(4,'0');
+  return`${part1}-${part2}-${part3}-${part4}`;
+}
+
+function showForgotPwd(){
+  const recoveryKey=localStorage.getItem('mm_recovery_key');
+  if(recoveryKey){
+    document.getElementById('recoveryModal').style.display='flex';
+  }else{
+    if(confirm('Sem código de recuperação neste dispositivo.\nIsso vai apagar os dados locais. Continuar?')){
+      localStorage.clear();sessionStorage.clear();location.reload();
+    }
+  }
+}
+
+function submitRecovery(){
+  const code=document.getElementById('recoveryCodeInput').value.trim().toUpperCase();
+  const storedKey=localStorage.getItem('mm_recovery_key');
+  const newPwd=document.getElementById('recoveryNewPwd').value;
+  const err=document.getElementById('recoveryError');
+  if(!code){err.textContent='Digite o código de recuperação.';err.style.display='block';return}
+  if(code!==storedKey){err.textContent='Código incorreto.';err.style.display='block';return}
+  if(!newPwd||newPwd.length<4){err.textContent='Mínimo 4 caracteres.';err.style.display='block';return}
+  const user=getLocalUser();
+  setLocalAuth(user,newPwd);
+  const newKey=generateRecoveryKey(user,newPwd);
+  localStorage.setItem('mm_recovery_key',newKey);
+  if(state.sheetUrl)saveAuthToSheets(user,newPwd);
+  document.getElementById('recoveryModal').style.display='none';
+  alert('✅ Senha redefinida! Veja o novo código em Configurações.');
+  setSession();
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  bootApp();
+}
+
+function toggleNewDevice(){
+  const g=document.getElementById('lockSheetUrlGroup');
+  const isOpen=g.style.display!=='none';
+  g.style.display=isOpen?'none':'block';
+  event.target.textContent=isOpen?'📱 Novo dispositivo?':'✕ Fechar';
+}
+
+function obShowTab(tab){
+  const isReg=tab==='register';
+  document.getElementById('obPanelRegister').style.display=isReg?'block':'none';
+  document.getElementById('obPanelLogin').style.display=isReg?'none':'block';
+  document.getElementById('obTabRegister').className='btn btn-'+(isReg?'primary':'secondary')+' btn-sm';
+  document.getElementById('obTabLogin').className='btn btn-'+(isReg?'secondary':'primary')+' btn-sm';
+}
+
+async function obDoLogin(){
+  const user=document.getElementById('obLoginUser').value.trim();
+  const pwd=document.getElementById('obLoginPwd').value;
+  const url=document.getElementById('obLoginUrl').value.trim();
+  const err=document.getElementById('obLoginErr');
+  const btn=document.getElementById('obLoginBtn');
+  if(!user||!pwd||!url){err.textContent='Preencha todos os campos.';err.style.display='block';return}
+  btn.textContent='Verificando...';btn.disabled=true;err.style.display='none';
+  try{
+    const res=await fetch(`${url}?action=verify_auth&user=${encodeURIComponent(user)}&pwd=${encodeURIComponent(simpleHash(pwd))}`);
+    const data=await res.json();
+    if(data.valid){
+      setLocalAuth(user,pwd);
+      state.sheetUrl=url;saveState();
+      if(data.claudeKey)state.claudeKey=data.claudeKey;
+      if(data.geminiKey)state.geminiKey=data.geminiKey;
+      if(data.aiProvider)state.aiProvider=data.aiProvider;
+      saveState();setSession();
+      document.getElementById('onboardingScreen').style.display='none';
+      document.getElementById('app').style.display='flex';
+      await restoreFromSheets(true);
+      bootApp();
+    }else{err.textContent='Usuário ou senha incorretos.';err.style.display='block';}
+  }catch(e){err.textContent='Erro de conexão.';err.style.display='block';}
+  btn.textContent='Entrar e carregar dados →';btn.disabled=false;
+}
+
+// requestDeleteLocal with gothic password (3Cheers4Revenge!)
+function requestDeleteLocal(){
+  const pwd=prompt('Digite sua senha de acesso para confirmar:');
+  if(pwd===null)return;
+  if(pwd!==getLocalPwd()){alert('Senha incorreta.');return}
+  if(!confirm('Tem certeza? Todos os dados locais serão apagados.'))return;
+  state._skipSyncUntil=Date.now()+(10*60*1000);
+  state.transactions=[];state.goals=[];state.categories=[...CATS_DEFAULT];
+  state.investments=[];state.cards=[];state.appLog=[];
+  saveState();renderTab();
+  alert('✅ Dados locais apagados.');
+}
 
 // ── GOTHIC OVERRIDES ──
 function navigate(tab) {
