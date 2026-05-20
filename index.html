@@ -3638,7 +3638,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
   } catch(e) {
     console.error('Boot error:', e);
-    // Fallback: show onboarding directly
     try {
       const ob = document.getElementById('onboardingScreen');
       const ls = document.getElementById('lockScreen');
@@ -3650,6 +3649,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.innerHTML = '<div style="color:#e0003a;font-family:monospace;padding:40px;background:#070408;min-height:100vh">Boot error: ' + e.message + '<br><br>' + e.stack + '</div>';
     }
   }
+
+  // Nav item click handler
+  document.addEventListener('click', e => {
+    const navItem = e.target.closest('.nav-item[data-tab]');
+    if (navItem) {
+      e.preventDefault();
+      navigate(navItem.dataset.tab);
+    }
+  });
 });
 
 // keyboard shortcut Ctrl+K
