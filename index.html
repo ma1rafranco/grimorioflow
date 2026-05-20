@@ -515,6 +515,7 @@ select option{background:var(--surface2);}
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" onclick="toggleGlobalSearch()" title="Buscar (Ctrl+K)">🔍</button>
+        <button class="icon-btn" onclick="openFeedbackModal()" title="Reportar bug ou sugestão">🐛</button>
         <button class="icon-btn" onclick="navigate('settings')" title="Configurações">⚙</button>
         <button class="icon-btn primary" onclick="openTxModal()">+ Lançamento</button>
       </div>
@@ -997,6 +998,7 @@ function loadState(){
   state.sheetPwd=L('ff_sheetpwd','');
   state.projMonth=L('ff_projmonth',2000);
   state.appLog=L('ff_log',[]);
+  state.feedbackLog=L('mm_feedback_log',[]);
   const now=new Date();
   state.reportFrom=now.toISOString().slice(0,7)+'-01';
   state.reportTo=todayStr();
@@ -1012,6 +1014,7 @@ function saveState(){
   S('ff_gk',state.geminiKey);S('ff_ai_enabled',state.aiEnabled);S('ff_sheeturl',state.sheetUrl);
   S('ff_sheetpwd',state.sheetPwd);S('ff_projmonth',state.projMonth);
   S('ff_log',state.appLog.slice(0,200));
+  S('mm_feedback_log',state.feedbackLog||[]);
 }
 
 // ══════════════════════════════════════════════════
@@ -2984,6 +2987,8 @@ function toggleNewDevice(){
 
 // ── AUTH FUNCTIONS ──
 const APP_SESSION='mm_session';
+const APP_VERSION='1.2.5';
+const APP_BUILD='r1';
 function getLocalPwd(){return localStorage.getItem('mm_app_pwd')||''}
 function getLocalUser(){return localStorage.getItem('mm_username')||''}
 function setLocalAuth(user,pwd){localStorage.setItem('mm_username',user);localStorage.setItem('mm_app_pwd',pwd)}
@@ -3199,6 +3204,30 @@ function renderSettings(){
 
   document.getElementById('content').innerHTML=`
   <div class="page-header"><div class="page-title">Configurações</div></div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Sobre</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:48px;height:48px;background:var(--crimson);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">💰</div>
+        <div>
+          <div style="font-weight:800;font-size:16px;font-family:var(--cinzel)">Maíra's Money</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Controle financeiro pessoal</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--crimson-bright)">v${APP_VERSION}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${APP_BUILD}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">🐛 Bugs & Feedback</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">Exportar Feedbacks</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Exporta todos os feedbacks com status <strong>novo</strong> e copia para o clipboard. Mande para o Lucas analisar!</div>
+    <button class="icon-btn primary" onclick="exportBugs()">📤 Exportar Bugs Novos</button>
+  </div>
 
   <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Segurança</div>
   <div class="card" style="margin-bottom:24px">
@@ -3729,6 +3758,107 @@ function runGlobalSearch(q) {
   const res = document.getElementById('globalSearchResults');
   if (res) res.style.display = q && q.length >= 2 ? 'block' : 'none';
 }
+
+// ── FEEDBACK SYSTEM ───────────────────────────────
+let currentFeedbackType='bug';
+
+function openFeedbackModal(){
+  const modal=document.getElementById('feedbackModal');
+  if(modal){
+    document.getElementById('feedbackDesc').value='';
+    document.getElementById('feedbackError').style.display='none';
+    document.getElementById('feedbackSuccess').style.display='none';
+    document.getElementById('feedbackSubmitBtn').textContent='📤 Enviar';
+    document.getElementById('feedbackSubmitBtn').disabled=false;
+    currentFeedbackType='bug';
+    document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='bug'));
+    modal.style.display='flex';
+  }
+}
+
+async function submitFeedback(){
+  const desc=document.getElementById('feedbackDesc').value.trim();
+  const err=document.getElementById('feedbackError');
+  const success=document.getElementById('feedbackSuccess');
+  const btn=document.getElementById('feedbackSubmitBtn');
+  if(!desc){err.textContent='Descreva o problema antes de enviar.';err.style.display='block';return;}
+  if(!state.sheetUrl){err.textContent='Configure o Google Sheets para enviar feedback.';err.style.display='block';return;}
+  btn.textContent='Enviando...';btn.disabled=true;err.style.display='none';
+  try{
+    await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'feedback',feedbackType:currentFeedbackType,page:TAB_TITLES[state.tab]||state.tab,description:desc,user:getLocalUser()||'anon',version:APP_VERSION})});
+    // salva localmente para exportBugs
+    if(!state.feedbackLog)state.feedbackLog=[];
+    state.feedbackLog.push({type:currentFeedbackType,page:TAB_TITLES[state.tab]||state.tab,description:desc,user:getLocalUser()||'anon',version:APP_VERSION,date:new Date().toLocaleString('pt-BR'),status:'novo'});
+    saveState();
+    success.style.display='block';
+    btn.textContent='✅ Enviado!';
+    setTimeout(()=>{document.getElementById('feedbackModal').style.display='none';},2000);
+  }catch(e){
+    err.textContent='Erro ao enviar. Tente novamente.';
+    err.style.display='block';btn.textContent='📤 Enviar';btn.disabled=false;
+  }
+}
+
+async function exportBugs(){
+  if(!state.sheetUrl){alert('Configure a URL do Sheets primeiro.');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Exportando...';
+  try{
+    const novos=(state.feedbackLog||[]).filter(f=>f.status==='novo');
+    if(novos.length===0){
+      alert('Nenhum feedback novo para exportar! ✅');
+      btn.disabled=false;btn.textContent='📤 Exportar Bugs Novos';return;
+    }
+    const linhas=[
+      `Maíra's Money v${APP_VERSION} — Export de Feedbacks`,
+      `Data: ${new Date().toLocaleString('pt-BR')}`,
+      `Total: ${novos.length} feedback(s) novo(s)`,
+      '─'.repeat(50),
+      ...novos.map((f,i)=>[
+        `\n[${i+1}] ${(f.type||'bug').toUpperCase()} — ${f.page||'?'} — v${f.version||'?'}`,
+        `Data: ${f.date||'?'}`,
+        `Usuário: ${f.user||'anon'}`,
+        `Descrição: ${f.description}`,
+      ].join('\n')),
+    ].join('\n');
+    await navigator.clipboard.writeText(linhas);
+    (state.feedbackLog||[]).forEach(f=>{if(f.status==='novo')f.status='enviado';});
+    saveState();
+    novos.forEach(f=>{
+      if(f.sheetIndex){
+        fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify({action:'mark_feedback_sent',index:f.sheetIndex})}).catch(()=>{});
+      }
+    });
+    alert(`✅ ${novos.length} feedback(s) copiado(s) para o clipboard!\n\nMande para o Lucas para ele analisar. 😊`);
+  }catch(e){alert('Erro: '+e.message);}
+  btn.disabled=false;btn.textContent='📤 Exportar Bugs Novos';
+}
+
+function getLocalUser(){
+  try{return JSON.parse(sessionStorage.getItem(APP_SESSION)||'{}').user||'';}catch{return '';}
+}
 </script>
+
+<!-- MODAL FEEDBACK -->
+<div id="feedbackModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:460px;width:100%">
+    <div class="modal-title">🐛 Reportar para o Lucas</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="fb-type-btn icon-btn active" data-type="bug" onclick="currentFeedbackType='bug';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='bug'))">🐛 Bug</button>
+      <button class="fb-type-btn icon-btn" data-type="sugestao" onclick="currentFeedbackType='sugestao';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='sugestao'))">💡 Sugestão</button>
+      <button class="fb-type-btn icon-btn" data-type="duvida" onclick="currentFeedbackType='duvida';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='duvida'))">❓ Dúvida</button>
+    </div>
+    <div class="form-label" style="margin-bottom:6px">Descreva o problema ou sugestão</div>
+    <textarea id="feedbackDesc" rows="4" style="width:100%;resize:vertical;font-family:inherit;font-size:13px;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text)" placeholder="Ex: Na tela de Investimentos, o botão X não funciona..."></textarea>
+    <div id="feedbackError" style="display:none;color:var(--crimson-bright);font-size:12px;margin-top:6px"></div>
+    <div id="feedbackSuccess" style="display:none;color:#22c55e;font-size:12px;margin-top:6px">✅ Feedback enviado!</div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="icon-btn primary" style="flex:2" id="feedbackSubmitBtn" onclick="submitFeedback()">📤 Enviar</button>
+      <button class="icon-btn" onclick="document.getElementById('feedbackModal').style.display='none'">Cancelar</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">v${APP_VERSION} · ${TAB_TITLES[state?.tab]||'App'}</div>
+  </div>
+</div>
 </body>
 </html>
