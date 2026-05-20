@@ -1739,6 +1739,10 @@ function parseFlexDate(str){if(!str)return null;let m=str.match(/(\d{2})\/(\d{2}
 function parseAmount(str){if(!str)return NaN;const c=str.replace(/R\$\s?/g,'').replace(/\s/g,'');if(c.includes(',')&&c.includes('.'))return parseFloat(c.replace(/\./g,'').replace(',','.'));if(c.includes(','))return parseFloat(c.replace(',','.'));return parseFloat(c)}
 function checkDuplicate(item){return state.transactions.some(t=>t.date===item.date&&Math.abs(t.amount-item.amount)<0.01&&t.description.toLowerCase().slice(0,20)===(item.description||'').toLowerCase().slice(0,20))}
 function renderImportList(){
+  const container = document.getElementById('importListContainer') || document.getElementById('importList');
+  if(!container) return;
+  // use container instead of importList
+  const origId = 'importList';
   const sel=importSelected.size;
   document.getElementById('importCount').textContent=`${importedItems.length} transações — ${sel} selecionadas`;
   document.getElementById('importConfirmBtn').textContent=`✅ Importar ${sel}`;
@@ -2189,7 +2193,7 @@ function deleteCat(id){
 // ══════════════════════════════════════════════════
 function renderTab(){
   const c=document.getElementById('content');c.innerHTML='';
-  const fn={dashboard:renderDashboard,transactions:renderTransactions,reports:renderReports,goals:renderGoals,projections:renderProjections,investments:renderInvestments,credit:renderCredit,settings:renderSettings};
+  const fn={dashboard:renderDashboard,transactions:renderTransactions,reports:renderReports,goals:renderGoals,projections:renderProjections,investments:renderInvestments,credit:renderCredit,import:renderImport,settings:renderSettings};
   if(fn[state.tab])fn[state.tab]();
   updateSyncUI();
 }
@@ -3079,6 +3083,532 @@ function requestDeleteLocal(){
   saveState();renderTab();
   alert('✅ Dados locais apagados.');
 }
+
+
+
+// ── MISSING RENDER FUNCTIONS ──
+
+function renderImport(){
+  document.getElementById('content').innerHTML=`
+  <div class="page-header">
+    <div class="page-title">✝ Importar Extrato</div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Importar CSV ou PDF</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;font-style:italic">
+      Importe extratos bancários em CSV ou PDF. O app detecta automaticamente as categorias.
+    </p>
+    <div class="import-drop" id="importDropZone"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleImportDrop(event);this.classList.remove('drag-over')"
+      onclick="document.getElementById('importFileInput').click()">
+      <div style="font-size:32px;margin-bottom:10px">📤</div>
+      <div style="font-family:var(--cinzel);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:6px">Arraste o arquivo aqui</div>
+      <div style="font-size:12px;color:var(--muted);font-style:italic">ou clique para selecionar · CSV ou PDF</div>
+      <input type="file" id="importFileInput" accept=".csv,.pdf" style="display:none" onchange="handleImportFile(event)"/>
+    </div>
+    <div id="importStatus" style="font-size:13px;color:var(--muted);margin-top:10px;font-style:italic"></div>
+  </div>
+  <div id="importStep2" class="import-step">
+    <div class="card">
+      <div class="card-title">Revisar Importação</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="toggleSelectAll()">☑ Selecionar todos</button>
+        <button class="btn btn-primary btn-sm" onclick="confirmImport()">✝ Importar selecionados</button>
+      </div>
+      <div id="importListContainer"></div>
+    </div>
+  </div>`;
+  // Re-attach drop listeners
+  const dz = document.getElementById('importDropZone');
+  if(dz) {
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => { handleImportDrop(e); dz.classList.remove('drag-over'); });
+  }
+}
+
+function showImportStep(n){
+  const s2 = document.getElementById('importStep2');
+  if(s2) s2.classList.toggle('active', n===2);
+  if(n===2 && s2) s2.style.display='block';
+  else if(s2) s2.style.display='none';
+}
+
+function renderSettings(){
+  const hasPwd=!!state.sheetPwd;
+  const expCats=state.categories.filter(c=>c.type==='expense');
+  const incCats=state.categories.filter(c=>c.type==='income');
+  const logColors={sync:'var(--green)',error:'var(--red)',create:'var(--crimson-bright)',edit:'var(--muted)',delete:'var(--red)',import:'var(--blue)'};
+
+  document.getElementById('content').innerHTML=`
+  <div class="page-header"><div class="page-title">Configurações</div></div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Segurança</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">🔑 Código de Recuperação</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Use este código se esquecer sua senha. Guarde em lugar seguro!</div>
+    ${localStorage.getItem('ff_recovery_key')?`
+    <div style="font-family:var(--mono);font-size:16px;font-weight:800;letter-spacing:2px;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px">${localStorage.getItem('ff_recovery_key')}</div>
+    <button onclick="navigator.clipboard.writeText('${localStorage.getItem('ff_recovery_key')}');alert('Copiado! ✅')" class="btn btn-secondary btn-sm">📋 Copiar código</button>
+    `:`<div class="alert alert-warning">⚠️ Nenhum código gerado. Faça logout e login novamente para gerar.</div>`}
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Saldo Inicial</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">O saldo inicial é o valor que você tinha <strong>antes</strong> de começar a registrar lançamentos no app. O saldo total será calculado a partir deste valor.</div>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div style="flex:1"><div class="form-label" style="margin-bottom:6px">Saldo Inicial (R$)</div>
+      <input type="number" id="initialBalanceInput" value="${state.initialBalance||0}" placeholder="0,00" step="0.01"/></div>
+      <button class="btn btn-primary" onclick="state.initialBalance=parseFloat(document.getElementById('initialBalanceInput').value)||0;saveState();renderTab();alert('Saldo inicial salvo! ✅')">Salvar</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Saldo atual: <strong style="color:var(--crimson-bright)">${fmt(getBalance())}</strong> (inicial + lançamentos)</div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Aparência</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-weight:700">${state.dark?'🌙 Modo Escuro':'☀️ Modo Claro'}</div></div>
+      <button onclick="toggleTheme();renderTab()" style="width:52px;height:28px;border-radius:14px;border:none;cursor:pointer;background:${state.dark?'var(--crimson-bright)':'var(--border)'};position:relative;transition:background .2s">
+        <div style="position:absolute;top:4px;left:${state.dark?'26':'4'}px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s"></div>
+      </button>
+    </div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Google Sheets</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="alert alert-info" style="margin-bottom:14px">📋 Cole a URL do seu Web App do Apps Script.</div>
+    <div class="form-group"><label class="form-label">URL do Web App</label>
+      <div class="sheet-url-wrap">
+        <input type="url" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/..." value="${state.sheetUrl}"/>
+        <button class="btn btn-primary" onclick="state.sheetUrl=document.getElementById('sheetUrlInput').value;saveState();updateSyncUI();addLog('sync','URL do Sheets atualizada');alert('URL salva! ✅')">Salvar</button>
+      </div>
+    </div>
+    <button class="btn btn-success btn-sm" onclick="syncNow()">🔄 Sincronizar agora</button>
+    <button class="btn btn-blue btn-sm" style="margin-left:8px" onclick="restoreFromSheets(false)">⬇️ Restaurar do Sheets</button>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Inteligência Artificial</div>
+  <div class="card" style="margin-bottom:24px">
+    <!-- AI master toggle -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:700;font-size:14px">${state.aiEnabled?'🤖 IA Ativada':'🔒 IA Desativada'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${state.aiEnabled?'Dados de análise podem ser enviados para a IA configurada':'Nenhum dado é compartilhado com qualquer IA'}</div>
+      </div>
+      <button onclick="state.aiEnabled=!state.aiEnabled;saveState();renderTab()" style="width:52px;height:28px;border-radius:14px;border:none;cursor:pointer;background:${state.aiEnabled?'var(--crimson-bright)':'var(--border)'};position:relative;transition:background .2s">
+        <div style="position:absolute;top:4px;left:${state.aiEnabled?'26':'4'}px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s"></div>
+      </button>
+    </div>
+    ${state.aiEnabled?`
+    <div class="ai-provider-grid">
+      ${[{id:'claude',name:'Claude',company:'Anthropic',emoji:'🟣',badge:'Pago',bc:'#6c63ff',cost:'~R$ 0,02/consulta',pros:['Mais detalhado','Sem uso dos seus dados'],cons:['Pago','Precisa de crédito'],ideal:'Melhor análise'},
+         {id:'gemini',name:'Gemini Flash',company:'Google',emoji:'🔵',badge:'Grátis',bc:'#22c55e',cost:'Gratuito (1.500/dia)',pros:['100% gratuito','Fácil configurar'],cons:['Google usa seus dados'],ideal:'Começar sem custo'}].map(p=>`
+      <div class="ai-provider-card ${state.aiProvider===p.id?`selected-${p.id}`:''}" onclick="state.aiProvider='${p.id}';saveState();renderTab()">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div><div style="font-size:16px">${p.emoji}</div><div style="font-weight:800;font-size:14px">${p.name}</div><div style="font-size:10px;color:var(--muted)">${p.company}</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+            <span class="ai-pro-badge" style="background:${p.bc}">${p.badge}</span>
+            ${state.aiProvider===p.id?'<span>✅</span>':''}
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:${p.bc};margin-bottom:6px">${p.cost}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.pros.map(x=>`<div>✓ ${x}</div>`).join('')}</div>
+        <div style="font-size:10px;color:var(--red)">${p.cons.map(x=>`<div>✗ ${x}</div>`).join('')}</div>
+        <div style="font-size:10px;color:var(--muted);font-style:italic;border-top:1px solid var(--border);padding-top:5px;margin-top:6px">💡 ${p.ideal}</div>
+      </div>`).join('')}
+    </div>
+    <div class="form-group"><label class="form-label">🟣 Claude API Key</label><input type="password" placeholder="sk-ant-..." value="${state.claudeKey}" oninput="state.claudeKey=this.value;saveState();saveAuthToSheets(getLocalUser(),getLocalPwd())" style="border-color:${state.aiProvider==='claude'?'var(--crimson-bright)':'var(--border)'}"/><div style="font-size:11px;color:var(--muted);margin-top:4px">Obtenha em <a href="https://console.anthropic.com" target="_blank" style="color:#6c63ff">console.anthropic.com</a></div></div>
+    <div class="form-group"><label class="form-label">🔵 Gemini API Key</label><input type="password" placeholder="AIza..." value="${state.geminiKey}" oninput="state.geminiKey=this.value;saveState();saveAuthToSheets(getLocalUser(),getLocalPwd())" style="border-color:${state.aiProvider==='gemini'?'#22c55e':'var(--border)'}"/><div style="font-size:11px;color:var(--muted);margin-top:4px">Obtenha em <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#22c55e">aistudio.google.com</a></div></div>
+    `:`<div class="alert alert-info">🔒 IA desativada — nenhum dado será compartilhado com serviços externos. Ative acima para usar análises e importação de PDF.</div>`}
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Categorias</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px">📥 Receitas</div>
+        ${incCats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px"><span style="font-size:16px">${c.icon}</span><span style="flex:1;font-size:13px;font-weight:500">${c.label}</span><div style="width:10px;height:10px;border-radius:50%;background:${c.color}"></div><button onclick="deleteCat('${c.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">✕</button></div>`).join('')}
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px">📤 Despesas</div>
+        ${expCats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px"><span style="font-size:16px">${c.icon}</span><span style="flex:1;font-size:13px;font-weight:500">${c.label}</span><div style="width:10px;height:10px;border-radius:50%;background:${c.color}"></div><button onclick="deleteCat('${c.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">✕</button></div>`).join('')}
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">+ Nova Categoria</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px">
+        ${['😀','💼','🏠','🚗','🍔','💊','🎮','📚','👕','📦','💰','📈','✈️','🎵','⚽','🏋️','🎓','💡','🔧','🛒','💳','🎁','🏖️','📱','💻','🎸','🌱','☕','🎯','💎','🚀','🎨','📷','⚡','🔑','🏥','🎬','📊','🛡️','🎪'].map(e=>`<button onclick="document.getElementById('newCatIcon').value='${e}';document.getElementById('newCatIconPreview').textContent='${e}'" style="font-size:18px;background:none;border:none;cursor:pointer;padding:2px;border-radius:4px" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'">${e}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div style="width:44px;height:38px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:20px" id="newCatIconPreview">🏷️</div>
+        <input id="newCatIcon" placeholder="emoji" maxlength="2" style="width:70px;text-align:center" oninput="document.getElementById('newCatIconPreview').textContent=this.value||'🏷️'"/>
+        <input id="newCatLabel" placeholder="Nome" style="flex:2;min-width:100px"/>
+        <select id="newCatType" style="flex:1;min-width:100px"><option value="expense">📤 Despesa</option><option value="income">📥 Receita</option></select>
+        <input id="newCatColor" type="color" value="#6366f1" style="width:38px;height:38px;border-radius:6px;padding:2px;cursor:pointer;border:1px solid var(--border);background:var(--surface2)"/>
+        <button class="btn btn-primary btn-sm" onclick="addCat()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Backup & Exportação</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-secondary" onclick="exportJSON()" style="text-align:left">📥 Exportar backup JSON</button>
+      <label class="btn btn-secondary" style="cursor:pointer;text-align:left">📤 Importar backup JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"/></label>
+      <button class="btn btn-secondary" onclick="exportPDF()" style="text-align:left">📄 Exportar relatório em PDF</button>
+      <button class="btn btn-secondary" onclick="exportAnonymous()" style="text-align:left">🔒 Exportar relatório anônimo para IA<div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px">Só tipo, categoria e valor — sem dados pessoais</div></button>
+    </div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Log de Atividades</div>
+  <div class="card" style="margin-bottom:24px">
+    ${state.appLog.length===0?'<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhuma atividade ainda.</div>':`
+    <div style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">
+      ${state.appLog.map(l=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 10px;background:var(--surface2);border-radius:7px;font-size:12px">
+        <span style="color:${logColors[l.type]||'var(--muted)'};flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;min-width:44px">${l.type}</span>
+        <span style="flex:1">${l.msg}</span>
+        <span style="color:var(--muted);flex-shrink:0;font-family:var(--mono);font-size:10px">${new Date(l.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="state.appLog=[];saveState();renderTab()">🗑️ Limpar log</button>`}
+  </div>
+
+  <div style="font-size:10px;color:var(--red);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Zona de Perigo</div>
+  <div class="danger-zone">
+    <div class="danger-title">🗑️ Apagar Dados Locais</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Remove todos os dados salvos <strong>neste dispositivo</strong>.</p>
+    <div class="alert alert-warning" style="margin-bottom:14px">⚠️ <strong>Atenção:</strong> Se o sync automático rodar depois, os dados do Google Sheets também serão apagados. Faça um backup JSON antes!</div>
+    <button class="btn btn-danger" onclick="requestDeleteLocal()">🗑️ Apagar dados locais</button>
+  </div>`;
+}
+
+
+
+
+function addCat(){
+  const iconPreview=document.getElementById('newCatIconPreview')?.textContent||'📦';
+  const iconInput=document.getElementById('newCatIcon')?.value.trim();
+  const icon=iconInput||iconPreview==='🏷️'?'📦':iconPreview;
+  const label=document.getElementById('newCatLabel').value.trim();
+  const type=document.getElementById('newCatType').value;
+  const color=document.getElementById('newCatColor').value;
+  if(!label)return alert('Digite um nome.');
+  state.categories.push({id:'cat_'+uid(),label,icon:icon||'📦',color,type});
+  // reset form
+  if(document.getElementById('newCatIcon'))document.getElementById('newCatIcon').value='';
+  if(document.getElementById('newCatIconPreview'))document.getElementById('newCatIconPreview').textContent='🏷️';
+  if(document.getElementById('newCatLabel'))document.getElementById('newCatLabel').value='';
+  saveState();renderTab();
+  addLog('create',`Categoria criada: ${label}`);
+}
+
+function deleteCat(id){
+  const c=state.categories.find(x=>x.id===id);
+  if(!confirm(`Apagar "${c?.label}"?`))return;
+  state.categories=state.categories.filter(x=>x.id!==id);
+  state.transactions=state.transactions.map(t=>t.category===id?{...t,category:'outros'}:t);
+  saveState();renderTab();
+}
+
+// ══════════════════════════════════════════════════
+// RENDER TABS
+// ══════════════════════════════════════════════════
+
+function exportJSON(){
+  const data={transactions:state.transactions,goals:state.goals,categories:state.categories,investments:state.investments,cards:state.cards};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=`financeflow-${todayStr()}.json`;a.click();
+}
+
+function importJSON(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{const d=JSON.parse(ev.target.result);
+      if(d.transactions)state.transactions=d.transactions;if(d.goals)state.goals=d.goals;
+      if(d.categories)state.categories=d.categories;if(d.investments)state.investments=d.investments;
+      if(d.cards)state.cards=d.cards;
+      saveState();renderTab();alert('Backup importado! ✅');
+    }catch{alert('Arquivo inválido.');}
+  };r.readAsText(f);
+}
+
+function exportPDF(){window.print()}
+
+// ══════════════════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════════════════
+
+function generatePDF(){
+  const sections={
+    summary:document.getElementById('pdf_summary')?.checked,
+    categories:document.getElementById('pdf_categories')?.checked,
+    monthly:document.getElementById('pdf_monthly')?.checked,
+    patrimony:document.getElementById('pdf_patrimony')?.checked,
+    goals:document.getElementById('pdf_goals')?.checked,
+    car:document.getElementById('pdf_car')?.checked,
+    transactions:document.getElementById('pdf_transactions')?.checked,
+    insights:document.getElementById('pdf_insights')?.checked,
+  };
+  const period=document.getElementById('pdfPeriod')?.value||'month';
+  const now=new Date();
+  let from,to,pLabel;
+  if(period==='month'){from=now.toISOString().slice(0,7)+'-01';to=todayStr();pLabel='Este mês';}
+  else if(period==='last'){const l=new Date(now.getFullYear(),now.getMonth()-1,1);const le=new Date(now.getFullYear(),now.getMonth(),0);from=l.toISOString().slice(0,10);to=le.toISOString().slice(0,10);pLabel='Mês passado';}
+  else if(period==='3months'){const d=new Date(now);d.setMonth(d.getMonth()-3);from=d.toISOString().slice(0,10);to=todayStr();pLabel='Últimos 3 meses';}
+  else{from=`${now.getFullYear()}-01-01`;to=todayStr();pLabel='Este ano';}
+
+  const txInPeriod=state.transactions.filter(t=>t.date>=from&&t.date<=to);
+  const income=txInPeriod.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense=txInPeriod.filter(t=>isRealExpense(t)).reduce((s,t)=>s+t.amount,0);
+  const invested=txInPeriod.filter(t=>t.type==='expense'&&t.category==='invest_out').reduce((s,t)=>s+t.amount,0);
+  const byCat=getCatExp(txInPeriod);
+  const totalInv=getTotalInvested();
+  const balance=getBalance();
+  const last6=getLast6();
+  const maxBar=Math.max(...last6.map(x=>x.value),1);
+  const CAR_CATS=state.categories.filter(c=>c.carSub).map(c=>c.id);
+  const carTxsPDF=state.transactions.filter(t=>t.type==='expense'&&(CAR_CATS.includes(t.category)||t.carEntry)&&t.date>=from&&t.date<=to);
+  const carTotal=carTxsPDF.reduce((s,t)=>s+t.amount,0);
+  const prevDate=new Date(from);prevDate.setMonth(prevDate.getMonth()-1);
+  const prevKey=prevDate.toISOString().slice(0,7);
+  const prevExp=state.transactions.filter(t=>isRealExpense(t)&&t.date.startsWith(prevKey)).reduce((s,t)=>s+t.amount,0);
+  const diffPct=prevExp>0?(((expense-prevExp)/prevExp)*100).toFixed(1):null;
+
+  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
+  <title>FinanceFlow — Relatório ${pLabel}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#08090c;--s1:#0f1117;--s2:#151820;--b1:#242836;--text:#e8ecf4;--muted:#5a6480;--accent:#c8f135;--green:#2dd881;--red:#ff4d6a;--blue:#4d9fff;--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);padding:32px;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @media print{body{padding:20px}}
+  .page-break{page-break-before:always}
+  h2{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+  h2::after{content:'';flex:1;height:1px;background:var(--b1)}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--b1);margin-bottom:24px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-icon{width:36px;height:36px;background:var(--crimson-bright);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .card{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:16px}
+  .stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:14px;border-top:2px solid}
+  .lbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .val{font-size:18px;font-weight:800;font-family:var(--mono);letter-spacing:-1px}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .bar-track{flex:1;height:5px;background:var(--s2);border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px}
+  .tx-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b1)}
+  .tx-row:last-child{border-bottom:none}
+  .badge{font-size:10px;padding:2px 6px;border-radius:6px;font-weight:600}
+  .insight{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:14px}
+  .health{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;font-weight:700}
+  .footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--b1);display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+  </style></head><body>
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">💰</div>
+      <div><div style="font-size:16px;font-weight:800">FinanceFlow</div><div style="font-size:11px;color:var(--muted)">Relatório Financeiro</div></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-1px">${pLabel}</div>
+      <div style="font-size:11px;color:var(--muted)">${fmtDate(from)} — ${fmtDate(to)}</div>
+    </div>
+  </div>
+
+  ${sections.summary?`
+  <div class="health" style="background:${expense>income?'#ef444408':'#22c55e08'};border:1px solid ${expense>income?'#ef444422':'#22c55e22'};color:${expense>income?'var(--red)':'var(--green)'}">
+    ${expense>income?'🔴 Gastos acima da renda no período':'✅ Situação financeira saudável no período'}
+    ${income>0?` — ${((expense/income)*100).toFixed(0)}% da renda em gastos reais`:''}
+  </div>
+  <div class="grid4">
+    <div class="stat-card" style="border-top-color:var(--crimson-bright)"><div class="lbl">Saldo Real</div><div class="val" style="color:var(--crimson-bright)">${fmt(balance)}</div></div>
+    <div class="stat-card" style="border-top-color:var(--green)"><div class="lbl">Entradas</div><div class="val" style="color:var(--green)">${fmt(income)}</div></div>
+    <div class="stat-card" style="border-top-color:var(--red)"><div class="lbl">Gastos Reais</div><div class="val" style="color:var(--red)">${fmt(expense)}</div></div>
+    <div class="stat-card" style="border-top-color:var(--blue)"><div class="lbl">Investido</div><div class="val" style="color:var(--blue)">${fmt(totalInv)}</div></div>
+  </div>`:''}
+
+  ${sections.categories&&byCat.length>0?`
+  <h2>Gastos por Categoria</h2>
+  <div class="card">
+    ${byCat.map(b=>`<div class="bar-row">
+      <span style="font-size:13px;width:20px">${b.icon}</span>
+      <span style="width:130px;font-size:12px;color:var(--muted)">${b.label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(b.value/byCat[0].value)*100}%;background:${b.color}"></div></div>
+      <span style="font-family:var(--mono);font-size:12px;font-weight:700;width:80px;text-align:right">${fmt(b.value)}</span>
+      <span style="font-size:10px;color:var(--muted);width:28px;text-align:right">${((b.value/(expense||1))*100).toFixed(0)}%</span>
+    </div>`).join('')}
+  </div>`:''}
+
+  ${sections.monthly?`
+  <h2>Últimos 6 Meses</h2>
+  <div class="card">
+    <div style="display:flex;align-items:flex-end;gap:8px;height:80px">
+      ${last6.map((b,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;height:${Math.max(3,(b.value/maxBar)*70)}px;background:${i===5?'var(--crimson-bright)':'var(--s2)'};border-radius:3px 3px 0 0;border:1px solid ${i===5?'var(--crimson-bright)':'var(--b1)'}"></div>
+        <div style="font-size:9px;color:var(--muted)">${b.label}</div>
+      </div>`).join('')}
+    </div>
+    ${diffPct!==null?`<div style="margin-top:10px;font-size:12px;color:${parseFloat(diffPct)>0?'var(--red)':'var(--green)'}">Você gastou <strong>${Math.abs(diffPct)}% ${parseFloat(diffPct)>0?'a mais':'a menos'}</strong> em relação ao período anterior (${fmt(prevExp)})</div>`:''}
+  </div>`:''}
+
+  ${sections.patrimony&&state.investments.filter(i=>i.status==='active').length>0?`
+  <h2>Patrimônio & Investimentos</h2>
+  <div class="card">
+    ${state.investments.filter(i=>i.status==='active').map(inv=>{
+      const cfg=INVEST_CONFIG[inv.type]||INVEST_CONFIG.outros;
+      const earn=inv.current-inv.applied;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)">
+        <span style="font-size:16px">${cfg.icon}</span>
+        <div style="flex:1"><div style="font-weight:600">${inv.name}</div><div style="font-size:11px;color:var(--muted)">${cfg.label}${inv.institution?' · '+inv.institution:''}</div></div>
+        <div style="text-align:right"><div style="font-family:var(--mono);font-weight:800;color:${cfg.color}">${fmt(inv.current)}</div>
+        <div style="font-size:11px;color:${earn>=0?'var(--green)':'var(--red)'}">${earn>=0?'+':''}${fmt(earn)} (${inv.applied>0?((earn/inv.applied)*100).toFixed(2):0}%)</div></div>
+      </div>`;
+    }).join('')}
+    <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);font-weight:800">
+      <span>Total Investido</span><span style="font-family:var(--mono);color:var(--blue)">${fmt(totalInv)}</span>
+    </div>
+  </div>`:''}
+
+  ${sections.goals&&state.goals.length>0?`
+  <h2>Metas</h2>
+  <div class="grid2">
+    ${state.goals.map(g=>{
+      const linkedInv=g.investLink?state.investments.find(x=>x.id===g.investLink):null;
+      const saved=linkedInv?linkedInv.current:(g.saved||0);
+      const pct=Math.min(100,(saved/g.target)*100);
+      return`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:20px">${g.emoji}</span>
+        <div><div style="font-weight:700">${g.name}</div>${linkedInv?`<div style="font-size:10px;color:var(--blue)">🔗 ${linkedInv.name}</div>`:''}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+        <span style="color:var(--muted)">Guardado</span><span style="font-weight:700;color:${g.color}">${fmt(saved)}</span>
+      </div>
+      <div style="height:5px;background:var(--s2);border-radius:3px;overflow:hidden;margin-bottom:4px"><div style="height:100%;width:${pct}%;background:${g.color};border-radius:3px"></div></div>
+      <div style="font-size:11px;color:var(--muted)">${pct.toFixed(1)}% de ${fmt(g.target)}</div></div>`;
+    }).join('')}
+  </div>`:''}
+
+  ${sections.car&&carTxsPDF.length>0?`
+  <h2>Gastos do Carro (${pLabel})</h2>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <span style="color:var(--muted)">Total no período</span>
+      <span style="font-family:var(--mono);font-weight:800;color:var(--red)">${fmt(carTotal)}</span>
+    </div>
+    ${carTxsPDF.slice(0,10).map(t=>{const c=cat(t.category);return`<div class="tx-row">
+      <span>${c.icon}</span><span style="flex:1;font-size:12px">${t.description}</span>
+      <span style="font-size:11px;color:var(--muted)">${fmtDate(t.date)}</span>
+      <span style="font-family:var(--mono);font-weight:700;color:var(--red)">${fmt(t.amount)}</span>
+    </div>`}).join('')}
+  </div>`:''}
+
+  ${sections.transactions?`
+  <h2>Últimos Lançamentos</h2>
+  <div class="card">
+    ${txInPeriod.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).map(t=>{const c=cat(t.category);return`<div class="tx-row">
+      <span>${c.icon}</span>
+      <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.description}</div>
+      <div style="font-size:10px;color:var(--muted)">${fmtDate(t.date)} · <span class="badge" style="background:${c.color}22;color:${c.color}">${c.label}</span></div></div>
+      <span style="font-family:var(--mono);font-weight:700;font-size:12px;color:${t.type==='income'?'var(--green)':'var(--red)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</span>
+    </div>`}).join('')}
+  </div>`:''}
+
+  ${sections.insights?`
+  <h2>Análise do Período</h2>
+  <div class="insight">
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">
+      ${income>0?`Suas entradas foram ${fmt(income)} e seus gastos reais ${fmt(expense)}.`:''} 
+      Resultado: <span style="color:${income-expense>=0?'var(--green)':'var(--red)'}">
+      ${income-expense>=0?'+':''}${fmt(income-expense)}</span>
+    </div>
+    ${byCat[0]?`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">📌 Maior gasto: ${byCat[0].icon} ${byCat[0].label} com ${fmt(byCat[0].value)} (${((byCat[0].value/expense)*100).toFixed(0)}% dos gastos)</div>`:''}
+    ${invested>0?`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">💰 Você investiu ${fmt(invested)} no período</div>`:''}
+    ${diffPct?`<div style="font-size:12px;color:${parseFloat(diffPct)>0?'var(--red)':'var(--green)'}">📈 Gastos ${parseFloat(diffPct)>0?'subiram':'caíram'} ${Math.abs(diffPct)}% em relação ao período anterior</div>`:''}
+  </div>`:''}
+
+  <div class="footer">
+    <span>FinanceFlow — Gerado em ${new Date().toLocaleString('pt-BR')}</span>
+    <span>financeflow-vert.vercel.app</span>
+  </div>
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+
+  closeModal('pdfModal');
+  // Use blob URL to avoid popup blocker
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(!w){
+    // fallback: download as file
+    const a=document.createElement('a');
+    a.href=url;a.download=`financeflow-${pLabel.toLowerCase().replace(/ /g,'-')}-${todayStr()}.html`;
+    a.click();
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+
+
+function openPDFModal(){openModal('pdfModal')}
+
+
+function openSetPwd(){
+  const hasPwd=!!state.sheetPwd;
+  document.getElementById('currentPwdGroup').style.display=hasPwd?'block':'none';
+  if(document.getElementById('currentPwd'))document.getElementById('currentPwd').value='';
+  document.getElementById('newPwd1').value='';document.getElementById('newPwd2').value='';
+  document.getElementById('setPwdError').style.display='none';
+  openModal('setPwdModal');
+}
+
+function confirmSetPwd(){
+  const p1=document.getElementById('newPwd1').value,p2=document.getElementById('newPwd2').value;
+  const err=document.getElementById('setPwdError');
+  if(state.sheetPwd&&document.getElementById('currentPwd')?.value!==state.sheetPwd){err.textContent='Senha atual incorreta.';err.style.display='block';return}
+  if(p1.length<4){err.textContent='Mínimo 4 caracteres.';err.style.display='block';return}
+  if(p1!==p2){err.textContent='Senhas não coincidem.';err.style.display='block';return}
+  state.sheetPwd=p1;saveState();closeModal('setPwdModal');renderTab();alert('Senha definida! ✅');
+}
+
+// ══════════════════════════════════════════════════
+// SHEETS DELETE
+// ══════════════════════════════════════════════════
+
+function requestSheetDelete(){
+  const from=document.getElementById('sheetDelFrom').value,to=document.getElementById('sheetDelTo').value;
+  if(!from||!to)return alert('Selecione o período.');
+  closeModal('sheetDeleteModal');
+  askPassword(`Apagar dados do Sheets de ${fmtDate(from)} a ${fmtDate(to)}.`,async()=>{
+    syncState='syncing';updateSyncUI();
+    try{
+      await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete_period',from,to})});
+      syncState='ok';alert('Dados apagados da planilha!');
+    }catch(e){syncState='error';alert('Erro ao apagar.');}
+    updateSyncUI();
+  });
+}
+async function deleteSheetPeriod(from,to){
+  if(!state.sheetUrl){alert('URL não configurada.');return}
+  try{await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete_period',from,to})});alert('Apagado!');}
+  catch(e){alert('Erro.');}
+}
+
+// ══════════════════════════════════════════════════
+// BATCH EDIT
+// ══════════════════════════════════════════════════
+
+async function deleteSheetPeriod(from,to){
+  if(!state.sheetUrl){alert('URL não configurada.');return}
+  try{await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete_period',from,to})});alert('Apagado!');}
+  catch(e){alert('Erro.');}
+}
+
+// ══════════════════════════════════════════════════
+// BATCH EDIT
+// ══════════════════════════════════════════════════
+
+function openSheetDeleteModal(){document.getElementById('sheetDelFrom').value='';document.getElementById('sheetDelTo').value='';openModal('sheetDeleteModal')}
 
 // ── GOTHIC OVERRIDES ──
 function navigate(tab) {
