@@ -2260,8 +2260,6 @@ function renderDashboard(){
   <!-- NOTIFICATIONS -->
   ${alertCards.map(c=>`<div class="alert alert-warning">⚠️ Fatura do <strong>${c.name}</strong> vence em ${c.dueDay-now.getDate()} dia${c.dueDay-now.getDate()!==1?'s':''}! <button onclick="navigate('credit')" style="background:none;border:none;color:var(--yellow);font-size:12px;cursor:pointer;text-decoration:underline">Ver fatura</button></div>`).join('')}
   ${alertGoals.map(g=>`<div class="alert alert-warning">🎯 Meta <strong>${g.name}</strong> vence em ${Math.ceil((new Date(g.deadline)-now)/86400000)} dias!</div>`).join('')}
-  ${revWarn?`<div class="alert alert-warning">🔧 Revisão do carro próxima! <strong>${carStats.kmToNextRev.toLocaleString()} km</strong> restantes. <button onclick="navigate('car')" style="background:none;border:none;color:var(--yellow);font-size:12px;cursor:pointer;text-decoration:underline">Ver carro</button></div>`:''}
-  ${insuranceDays!==null&&insuranceDays<=30?`<div class="alert alert-danger">🛡️ Seguro do carro vence em <strong>${insuranceDays} dias</strong>!</div>`:''}
   ${showInvReminder?`<div class="alert alert-info" style="display:flex;justify-content:space-between;align-items:center">
     <span>📊 ${lastInvUpdate===0?'Você nunca atualizou seus investimentos.':'Seus investimentos não são atualizados há '+daysSinceUpdate+' dias.'} Que tal atualizar agora?</span>
     <div style="display:flex;gap:6px;flex-shrink:0">
