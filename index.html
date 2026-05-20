@@ -226,7 +226,7 @@ select option{background:var(--surface2);}
 
 /* ── CREDIT CARD ── */
 .credit-card-visual{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border-accent);border-radius:10px;padding:20px;position:relative;overflow:hidden;}
-.credit-card-visual::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:var(--crimson-faint);border-radius:50%;}
+.credit-card-visual::before{display:none;}
 
 /* ── FATURA ── */
 .fatura-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border2);font-size:13px;}
@@ -1088,16 +1088,22 @@ function navigate(tab){
 // ══════════════════════════════════════════════════
 let syncState='idle';
 
-function updateSyncUI(){
+function updateSyncUI(status){
   const dot=document.getElementById('syncDot');
   const label=document.getElementById('syncLabel');
   const icon=document.getElementById('syncIcon');
   if(!dot)return;
-  if(!state.sheetUrl){dot.className='sync-status-dot';if(label)label.textContent='Sheets não configurado';if(icon)icon.textContent='📋';return}
-  if(syncState==='syncing'){dot.className='sync-status-dot syncing';if(label)label.textContent='Sincronizando...';if(icon)icon.textContent='🔄'}
-  else if(syncState==='ok'){dot.className='sync-status-dot ok';if(label)label.textContent='Sheets sincronizado';if(icon)icon.textContent='✅'}
-  else if(syncState==='error'){dot.className='sync-status-dot error';if(label)label.textContent='Erro na sync';if(icon)icon.textContent='❌'}
-  else{dot.className='sync-status-dot ok';if(label)label.textContent='Sheets configurado';if(icon)icon.textContent='✅'}
+  state.syncStatus=status||state.syncStatus||'none';
+  const cfg={
+    ok:    {color:'#5cb870', text:'Sincronizado',      icon:'✅'},
+    syncing:{color:'#c87820',text:'Sincronizando...',  icon:'🔄'},
+    error: {color:'#e0003a', text:'Erro de sync',      icon:'❌'},
+    none:  {color:'#5a3a48', text:'Sheets não configurado', icon:'🦇'},
+  };
+  const c=cfg[state.syncStatus]||cfg.none;
+  dot.style.background=c.color;
+  if(label)label.textContent=c.text+(state.lastSync?' · '+new Date(state.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'');
+  if(icon)icon.textContent=c.icon;
 }
 
 function toggleSyncPopover(){
@@ -1135,13 +1141,28 @@ async function syncToSheets(items,action='upsert'){
 }
 
 async function syncNow(){
-  if(!state.sheetUrl)return navigate('settings');
-  syncState='syncing';updateSyncUI();
+  if(!state.sheetUrl){showToast('Configure o Sheets primeiro','warn');return navigate('settings');}
+  state.syncStatus='syncing';updateSyncUI();
   try{
-    await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'sync_all',transactions:state.transactions,goals:state.goals,investments:state.investments})});
-    syncState='ok';addLog('sync',`Sync completo — ${state.transactions.length} lançamentos`);
-  }catch(e){syncState='error';addLog('error',`Sync erro: ${e.message}`);}
+    await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'sync_all',
+        transactions:state.transactions,
+        goals:state.goals,
+        investments:state.investments
+      })
+    });
+    state.syncStatus='ok';
+    state.lastSync=Date.now();
+    saveState();
+    addLog('sync',`✝ Sync completo — ${state.transactions.length} lançamentos`);
+    showToast('✝ Sincronizado!');
+  }catch(e){
+    state.syncStatus='error';
+    addLog('error',`Sync erro: ${e.message}`);
+    showToast('Erro de sync','error');
+  }
   updateSyncUI();
 }
 
@@ -2678,8 +2699,10 @@ function renderInvestments(){
             <button class="btn btn-secondary btn-sm" style="flex:1;min-width:70px" onclick="openAporteModal('${inv.id}')">➕ Aporte</button>
             <button class="btn btn-blue btn-sm" style="flex:1;min-width:70px" onclick="openUpdateInvest('${inv.id}')">📊 Atualizar</button>
             <button class="btn btn-success btn-sm" style="flex:1;min-width:70px" onclick="openRedeemModal('${inv.id}')">📤 Resgatar</button>
-            <button class="tx-act-btn" style="flex-shrink:0" onclick="openInvestModal(state.investments.find(x=>x.id==='${inv.id}'))">✏️</button>
-            <button class="tx-act-btn del" style="flex-shrink:0" onclick="deleteInvestment('${inv.id}')">🗑️</button>
+            <div style="display:flex;gap:4px;margin-top:4px;width:100%">
+              <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openInvestModal(state.investments.find(x=>x.id==='${inv.id}'))">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" style="flex:1" onclick="deleteInvestment('${inv.id}')">🗑️ Excluir</button>
+            </div>
           </div>
         </div>`;
       }).join('')}
