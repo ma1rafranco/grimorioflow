@@ -3759,6 +3759,19 @@ function runGlobalSearch(q) {
   if (res) res.style.display = q && q.length >= 2 ? 'block' : 'none';
 }
 
+// ── TOAST ─────────────────────────────────────────
+function showToast(msg, type='success'){
+  const existing=document.getElementById('mm-toast');
+  if(existing)existing.remove();
+  const t=document.createElement('div');
+  t.id='mm-toast';
+  const bg=type==='error'?'var(--crimson-bright)':type==='warn'?'#b45309':'#166534';
+  t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.4);pointer-events:none;font-family:var(--cinzel);letter-spacing:1px`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
 // ── FEEDBACK SYSTEM ───────────────────────────────
 let currentFeedbackType='bug';
 
