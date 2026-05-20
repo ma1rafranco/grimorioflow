@@ -3632,9 +3632,24 @@ function navigate(tab) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadState();
-  applyTheme();
-  checkAuth();
+  try {
+    loadState();
+    applyTheme();
+    checkAuth();
+  } catch(e) {
+    console.error('Boot error:', e);
+    // Fallback: show onboarding directly
+    try {
+      const ob = document.getElementById('onboardingScreen');
+      const ls = document.getElementById('lockScreen');
+      const app = document.getElementById('app');
+      if (ob) ob.style.display = 'block';
+      if (ls) ls.style.display = 'none';
+      if (app) app.style.display = 'none';
+    } catch(e2) {
+      document.body.innerHTML = '<div style="color:#e0003a;font-family:monospace;padding:40px;background:#070408;min-height:100vh">Boot error: ' + e.message + '<br><br>' + e.stack + '</div>';
+    }
+  }
 });
 
 // keyboard shortcut Ctrl+K
