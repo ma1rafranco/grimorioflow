@@ -24,13 +24,13 @@
   --text:#1a0a10;--muted:#5a3848;--muted2:#8a6070;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-accent);border-radius:2px}
 
 /* ── GOTHIC ATMOSPHERE ── */
-.bat-container{display:none!important;}
+.bat-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
 .bat{position:absolute;opacity:0;}
 .bat1{animation:fly1 16s linear infinite;top:8%;}
 .bat2{animation:fly2 20s linear infinite;animation-delay:5s;top:22%;}
@@ -41,13 +41,15 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 @keyframes fly2{0%{left:calc(100vw + 60px);opacity:0;transform:scaleY(1) scaleX(-1);}5%{opacity:.55;}30%{transform:scaleY(.5) scaleX(-1);}60%{transform:scaleY(1) scaleX(-1);}95%{opacity:.4;}100%{left:-60px;opacity:0;}}
 @keyframes fly3{0%{left:-45px;opacity:0;transform:scaleY(1) scaleX(1) scale(.75);}8%{opacity:.65;}20%{transform:scaleY(.4) scaleX(1) scale(.75);}40%{transform:scaleY(1) scaleX(1) scale(.75);}60%{transform:scaleY(.45) scaleX(1) scale(.75);}80%{transform:scaleY(1) scaleX(1) scale(.75);}92%{opacity:.45;}100%{left:calc(100vw + 45px);opacity:0;}}
 @keyframes fly4{0%{left:-80px;opacity:0;transform:scaleY(1) scaleX(1) scale(1.2);}6%{opacity:.45;}25%{transform:scaleY(.4) scaleX(1) scale(1.2) translateY(-6px);}50%{transform:scaleY(1) scaleX(1) scale(1.2);}75%{transform:scaleY(.5) scaleX(1) scale(1.2) translateY(-4px);}94%{opacity:.35;}100%{left:calc(100vw + 80px);opacity:0;}}
+
+#customBtn,#bugReportBtn-inner{position:fixed;bottom:24px;width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:900;box-shadow:0 4px 20px rgba(0,0,0,.8);transition:all .2s;color:var(--text);line-height:1;}
+#customBtn{right:76px;}
+#customBtn:hover{background:var(--crimson-faint);transform:scale(1.1);border-color:var(--crimson-bright);}
+#app-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center 30%;background-repeat:no-repeat;opacity:0;display:block;transition:opacity .3s;}
 @keyframes fly5{0%{left:calc(100vw + 55px);opacity:0;transform:scaleY(1) scaleX(-1) scale(.85);}8%{opacity:.6;}33%{transform:scaleY(.45) scaleX(-1) scale(.85);}66%{transform:scaleY(1) scaleX(-1) scale(.85);}92%{opacity:.4;}100%{left:-55px;opacity:0;}}
 .candle-left,.candle-right{position:fixed;bottom:0;pointer-events:none;z-index:0;opacity:.15;}
 .candle-left{left:8px;}.candle-right{right:8px;}
 @keyframes flicker{0%,100%{opacity:1}50%{opacity:.7}75%{opacity:.9}}
-#app-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center 30%;background-repeat:no-repeat;opacity:0;display:block;transition:opacity .3s}
-#customBtn{position:fixed;bottom:24px;right:80px;width:48px;height:48px;border-radius:50%;background:var(--surface);border:2px solid var(--border);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:900;box-shadow:0 4px 20px rgba(0,0,0,.8);transition:all .2s;color:var(--text);line-height:1}
-#customBtn:hover{background:var(--crimson-bright);transform:scale(1.1);border-color:var(--crimson-bright);color:#fff}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── LAYOUT ── */
@@ -321,6 +323,8 @@ select option{background:var(--surface2);}
   </svg>
 </div>
 
+<div id="app-bg"></div>
+
 <!-- LOCK SCREEN -->
 <div id="lockScreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:999;align-items:center;justify-content:center;flex-direction:column;">
   <div style="width:100%;max-width:400px;padding:24px;">
@@ -360,6 +364,23 @@ select option{background:var(--surface2);}
       </div>
     </div>
   </div>
+
+  <div style="font-family:var(--cinzel);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px">✝ O que há de novo</div>
+  <div class="card" style="margin-bottom:24px">
+    \${CHANGELOG.slice(0,6).map(function(c){
+      var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fca5a5':'background:#1a2030;color:#93c5fd';
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+        +'<span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--cinzel);'+badge+'">'
+        +(c.type==='novo'?'✨ NOVO':c.type==='fix'?'🐛 FIX':'⚡ OK')
+        +'</span>'
+        +'<div style="flex:1">'
+        +'<div style="font-size:12px;color:var(--text)">'+(c.text||'')+'</div>'
+        +'<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--cinzel);letter-spacing:1px">v'+(c.version||'')+'</div>'
+        +'</div>'
+        +'</div>';
+    }).join('')}
+  </div>
+
 </div>
 
 <!-- ONBOARDING -->
@@ -430,27 +451,13 @@ select option{background:var(--surface2);}
       <button class="modal-close" onclick="closeModal('cardModal')">×</button>
     </div>
     <div class="form-group"><label class="form-label">Nome do Cartão</label><input type="text" id="cardName" placeholder="Ex: Inter Visa"/></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="form-group"><label class="form-label">Bandeira</label>
-        <select id="cardBrand">
-          <option value="visa">Visa</option>
-          <option value="master">Mastercard</option>
-          <option value="elo">Elo</option>
-          <option value="amex">Amex</option>
-          <option value="outros">Outros</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Tipo</label>
-        <select id="cardType">
-          <option value="fisico">💳 Físico</option>
-          <option value="virtual">📱 Virtual</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group"><label class="form-label">Status</label>
-      <select id="cardStatus">
-        <option value="ativo">✅ Ativo</option>
-        <option value="encerrado">❌ Encerrado</option>
+    <div class="form-group"><label class="form-label">Bandeira</label>
+      <select id="cardBrand">
+        <option value="visa">Visa</option>
+        <option value="master">Mastercard</option>
+        <option value="elo">Elo</option>
+        <option value="amex">Amex</option>
+        <option value="outros">Outros</option>
       </select>
     </div>
     <div class="form-group"><label class="form-label">Dia de Fechamento</label><input type="number" id="cardClose" min="1" max="31" placeholder="Ex: 6"/></div>
@@ -461,25 +468,6 @@ select option{background:var(--surface2);}
       <button class="btn btn-secondary" style="flex:1" onclick="closeModal('cardModal')">Cancelar</button>
       <button class="btn btn-primary" style="flex:2" onclick="saveCard()">Salvar</button>
     </div>
-  </div>
-</div>
-
-<!-- IMPORTAR FATURA MODAL -->
-<div id="importFaturaModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'importFaturaModal')">
-  <div class="modal" style="max-width:520px;max-height:80vh;overflow-y:auto">
-    <div class="modal-header"><div class="modal-title">📥 Importar Fatura PDF</div><button class="modal-close" onclick="closeModal('importFaturaModal')">×</button></div>
-    <div id="importFaturaStep1">
-      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Selecione o PDF da fatura do <strong>Banco Inter</strong>. As transações serão lidas e vinculadas ao cartão que você escolher.</div>
-      <div class="form-group"><label class="form-label">Arquivo PDF da Fatura</label>
-        <input type="file" id="importFaturaFile" accept=".pdf" style="font-size:13px"/>
-      </div>
-      <div id="importFaturaErr" style="display:none;color:var(--crimson-bright);font-size:12px;margin-top:8px"></div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn-primary" style="flex:1" id="importFaturaBtn" onclick="processImportFatura()">Continuar →</button>
-        <button class="btn btn-secondary" onclick="closeModal('importFaturaModal')">Cancelar</button>
-      </div>
-    </div>
-    <div id="importFaturaStep2" style="display:none"></div>
   </div>
 </div>
 
@@ -551,7 +539,6 @@ select option{background:var(--surface2);}
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" onclick="toggleGlobalSearch()" title="Buscar (Ctrl+K)">🔍</button>
-        <button class="icon-btn" onclick="openFeedbackModal()" title="Reportar bug ou sugestão">🐛</button>
         <button class="icon-btn" onclick="navigate('settings')" title="Configurações">⚙</button>
         <button class="icon-btn primary" onclick="openTxModal()">+ Lançamento</button>
       </div>
@@ -1033,10 +1020,7 @@ function loadState(){
   state.sheetUrl=L('ff_sheeturl','');
   state.sheetPwd=L('ff_sheetpwd','');
   state.projMonth=L('ff_projmonth',2000);
-  state.primaryCardId=L('mm_primary_card','');
-  state.creditView={cardId:'',year:new Date().getFullYear(),month:new Date().getMonth()+1,tab:'faturas'};
   state.appLog=L('ff_log',[]);
-  state.feedbackLog=L('mm_feedback_log',[]);
   state.bgOpacity=L('mm_bg_opacity',0);
   state.bgPosition=L('mm_bg_position','center 30%');
   state.bgImage=L('mm_bg_image',null);
@@ -1053,9 +1037,8 @@ function saveState(){
   S('ff_cats',state.categories);S('ff_dark',state.dark);
   S('ff_aiprov',state.aiProvider);S('ff_ck',state.claudeKey);
   S('ff_gk',state.geminiKey);S('ff_ai_enabled',state.aiEnabled);S('ff_sheeturl',state.sheetUrl);
-  S('ff_sheetpwd',state.sheetPwd);S('ff_projmonth',state.projMonth);S('mm_primary_card',state.primaryCardId||'');
+  S('ff_sheetpwd',state.sheetPwd);S('ff_projmonth',state.projMonth);
   S('ff_log',state.appLog.slice(0,200));
-  S('mm_feedback_log',state.feedbackLog||[]);
   S('mm_bg_opacity',state.bgOpacity);
   S('mm_bg_position',state.bgPosition);
   if(state.bgImage!==undefined)S('mm_bg_image',state.bgImage);
@@ -1080,6 +1063,44 @@ const todayStr=()=>new Date().toISOString().slice(0,10);
 const uid=()=>Math.random().toString(36).slice(2,10);
 const cat=id=>state.categories.find(c=>c.id===id)||{label:id,color:'#64748b',icon:'📦'};
 const catsByType=type=>state.categories.filter(c=>c.type===type);
+
+const APP_VERSION='1.2.6';
+const APP_BUILD='r2';
+const CHANGELOG=[
+  {version:'1.2.6-r2',type:'novo',text:'Personalização de fundo — troque a imagem e ajuste opacidade pelo botão 🎨'},
+  {version:'1.2.6-r2',type:'novo',text:'Botão 🦇 para registrar bugs diretamente na tela'},
+  {version:'1.2.6-r2',type:'novo',text:'Changelog nas configurações — histórico de mudanças'},
+  {version:'1.2.6-r1',type:'novo',text:'Botão de reportar bug fixo no canto inferior direito'},
+  {version:'1.2.6-r1',type:'fix',text:'showToast não estava definida — adicionada com estilo gótico'},
+  {version:'1.2.5',type:'fix',text:'syncNow envia estado completo — deletados somem do Sheets'},
+  {version:'1.2.5',type:'fix',text:'Categorias de carro removidas do padrão'},
+  {version:'1.2.4',type:'fix',text:'cardModal ausente no HTML — corrigido'},
+  {version:'1.2.3',type:'fix',text:'Navegação da sidebar não funcionava — listener adicionado'},
+];
+
+// ── TOAST NOTIFICATION ──
+function showToast(msg, type='ok'){
+  let el = document.getElementById('mm-toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'mm-toast';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:6px;font-family:var(--cinzel);font-size:11px;letter-spacing:2px;text-transform:uppercase;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(el);
+  }
+  const colors = {
+    ok:    {bg:'var(--green-faint)',   border:'var(--green)',          color:'var(--green-bright)'},
+    warn:  {bg:'rgba(200,120,0,.15)',  border:'var(--yellow)',         color:'var(--yellow)'},
+    error: {bg:'var(--crimson-faint)', border:'var(--crimson-muted)',  color:'var(--crimson-bright)'},
+  };
+  const c = colors[type] || colors.ok;
+  el.style.background = c.bg;
+  el.style.border = `.5px solid ${c.border}`;
+  el.style.color = c.color;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = '0'; }, 2800);
+}
 
 function addLog(type,msg){
   state.appLog.unshift({ts:new Date().toISOString(),type,msg});
@@ -1540,8 +1561,6 @@ function openCardModal(card=null){
   document.getElementById('cardModalTitle').textContent=card?'Editar Cartão':'Novo Cartão';
   document.getElementById('cardName').value=card?card.name:'';
   document.getElementById('cardBrand').value=card?card.brand:'visa';
-  document.getElementById('cardType').value=card?card.tipo||'fisico':'fisico';
-  document.getElementById('cardStatus').value=card?card.status||'ativo':'ativo';
   document.getElementById('cardClose').value=card?card.closeDay:'';
   document.getElementById('cardDue').value=card?card.dueDay:'';
   document.getElementById('cardLimit').value=card?card.limit:'';
@@ -1557,7 +1576,7 @@ function saveCard(){
   const closeDay=parseInt(document.getElementById('cardClose').value);
   const dueDay=parseInt(document.getElementById('cardDue').value);
   if(!name||!closeDay||!dueDay)return alert('Preencha todos os campos.');
-  const card={id:state.editingCardId||uid(),name,brand:document.getElementById('cardBrand').value,tipo:document.getElementById('cardType').value,status:document.getElementById('cardStatus').value,closeDay,dueDay,limit:parseFloat(document.getElementById('cardLimit').value)||0,color:selectedCardColor};
+  const card={id:state.editingCardId||uid(),name,brand:document.getElementById('cardBrand').value,closeDay,dueDay,limit:parseFloat(document.getElementById('cardLimit').value)||0,color:selectedCardColor};
   if(state.editingCardId)state.cards=state.cards.map(x=>x.id===state.editingCardId?card:x);
   else state.cards=[...state.cards,card];
   saveState();closeModal('cardModal');renderTab();
@@ -1941,7 +1960,7 @@ function getMonthTx(){const m=new Date().toISOString().slice(0,7);return state.t
 const NON_EXPENSE_CATS=['invest_out','transferencia_out','transferencia_in'];
 
 function isRealExpense(t){
-  return t.type==='expense'&&!NON_EXPENSE_CATS.includes(t.category)&&!t.isFaturaPayment;
+  return t.type==='expense'&&!NON_EXPENSE_CATS.includes(t.category);
 }
 
 function getCatExp(txList){
@@ -2347,10 +2366,6 @@ function renderDashboard(){
   const lastInvUpdate=parseInt(localStorage.getItem('ff_last_inv_update')||'0');
   const daysSinceUpdate=Math.floor((Date.now()-lastInvUpdate)/(1000*60*60*24));
   const showInvReminder=state.investments.filter(i=>i.status==='active').length>0&&(lastInvUpdate===0||daysSinceUpdate>=7);
-  const primaryCard=state.primaryCardId?state.cards.find(c=>c.id===state.primaryCardId):state.cards.filter(c=>c.status!=='encerrado')[0]||null;
-  const primaryFaturas=primaryCard?getCardFaturas(primaryCard.id):[];
-  const primaryAberto=primaryFaturas.filter(f=>!f.isPaid).reduce((s,f)=>s+f.total,0);
-  const primaryUsagePct=primaryCard&&primaryCard.limit>0?Math.min(100,(primaryAberto/primaryCard.limit)*100):0;
 
   document.getElementById('content').innerHTML=`
   <div class="page-header">
@@ -2376,9 +2391,7 @@ function renderDashboard(){
     </div>
   </div>`:''}
 
-  \${primaryCard?('<div>'+primaryCard.name+'</div>'):''}
-
-    <!-- FINANCIAL HEALTH -->
+  <!-- FINANCIAL HEALTH -->
   <div style="padding:12px 16px;background:${healthBg};border:1px solid ${healthBorder};border-radius:var(--radius);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
     <span style="font-size:13px;font-weight:700;color:${healthColor}">${healthMsg}</span>
     <span style="font-size:12px;color:var(--muted)">${income>0?((expense/income)*100).toFixed(0)+'% da renda gasto':''}</span>
@@ -2425,7 +2438,7 @@ function renderDashboard(){
       <div style="display:flex;gap:16px;align-items:center">
         ${buildPie(expByCat)}
         <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-          ${expByCat.slice(0,5).map(c=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px"><div style="width:8px;height:8px;border-radius:2px;background:${c.color};flex-shrink:0"></div><span style="flex:1;color:var(--muted)">${c.icon} ${c.label}</span><span style=\"color:var(--muted);font-size:11px\">${expense>0?((c.value/expense)*100).toFixed(0)+'%':''}</span><strong>${fmt(c.value)}</strong></div>`).join('')}
+          ${expByCat.slice(0,5).map(c=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px"><div style="width:8px;height:8px;border-radius:2px;background:${c.color};flex-shrink:0"></div><span style="flex:1;color:var(--muted)">${c.icon} ${c.label}</span><strong>${fmt(c.value)}</strong></div>`).join('')}
         </div>
       </div>`}
     </div>
@@ -2465,26 +2478,6 @@ function renderDashboard(){
       <div class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--red)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
     </div>`}).join('')}
   </div>`;
-  // card do cartão principal no dashboard
-  if(primaryCard){
-    const fhEl=document.getElementById('content').querySelector('[style*="healthBg"]')||document.getElementById('content').querySelector('.stats-grid');
-    if(fhEl){
-      const d=document.createElement('div');
-      d.className='credit-card-visual';
-      d.style.cssText='background:linear-gradient(135deg,'+primaryCard.color+','+primaryCard.color+'88);margin-bottom:16px';
-      d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'
-        +'<div><div style="font-size:16px;font-weight:800;color:#fff;font-family:var(--cinzel)">'+(primaryCard.tipo==='virtual'?'📱':'💳')+' '+primaryCard.name+'</div>'
-        +'<div style="font-size:11px;color:#ffffff88;margin-top:2px">'+primaryCard.brand.toUpperCase()+' · Fecha dia '+primaryCard.closeDay+'</div></div>'
-        +'<button onclick="navigate(\'credit\')" style="background:#ffffff22;border:none;color:#fff;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer">Ver faturas →</button>'
-        +'</div><div style="display:flex;gap:16px;margin-bottom:10px">'
-        +'<div><div style="font-size:10px;color:#ffffff66">Fatura Aberta</div><div style="font-size:20px;font-weight:800;color:#fff">'+fmt(primaryAberto)+'</div></div>'
-        +'<div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:#ffffff66">Limite</div><div style="font-size:15px;font-weight:700;color:#fff">'+fmt(primaryCard.limit)+'</div></div>'
-        +'</div><div style="height:4px;background:#ffffff22;border-radius:2px;margin-bottom:6px">'
-        +'<div style="height:100%;width:'+primaryUsagePct.toFixed(0)+'%;background:'+(primaryUsagePct>80?'#ef4444':'#fff')+';border-radius:2px;transition:width .5s"></div>'
-        +'</div><div style="font-size:11px;color:#ffffff88">'+primaryUsagePct.toFixed(0)+'% do limite utilizado</div>';
-      fhEl.parentNode.insertBefore(d,fhEl);
-    }
-  }
 }
 
 // ── TRANSACTIONS ───────────────────────────────────
@@ -2803,128 +2796,69 @@ function renderInvestments(){
 
 // ── CREDIT ─────────────────────────────────────────
 function renderCredit(){
-  const now=new Date();
-  const cv=state.creditView;
-  if(!cv.cardId&&state.cards.length>0)cv.cardId=state.cards[0].id;
-  const card=state.cards.find(c=>c.id===cv.cardId)||state.cards[0]||null;
-  const allYears=[...new Set(state.transactions.filter(t=>t.cardId===card?.id&&!t.isFaturaPayment).map(t=>t.date.slice(0,4)))].sort((a,b)=>b-a);
-  if(!allYears.includes(String(cv.year)))cv.year=parseInt(allYears[0]||now.getFullYear());
-  const allMonths=[...new Set(state.transactions.filter(t=>t.cardId===card?.id&&!t.isFaturaPayment&&t.date.startsWith(String(cv.year))).map(t=>parseInt(t.date.slice(5,7))))].sort((a,b)=>b-a);
-  if(!allMonths.includes(cv.month))cv.month=allMonths[0]||now.getMonth()+1;
-  const monthKey=cv.year+'-'+String(cv.month).padStart(2,'0');
-  const faturas=card?getCardFaturas(card.id):[];
-  const faturaAtual=faturas.find(f=>f.month===monthKey)||{txs:[],total:0,isPaid:false,dueDate:monthKey+'-'+String(card?.dueDay||1).padStart(2,'0')};
-  const faturaPayments=state.transactions.filter(t=>t.isFaturaPayment).sort((a,b)=>b.date.localeCompare(a.date));
-  const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  document.getElementById('content').innerHTML=`
+  <div class="page-header">
+    <div class="page-title">Cartões de Crédito 💳</div>
+    <button class="btn btn-primary" onclick="openCardModal()">+ Novo Cartão</button>
+  </div>
 
-  function buildCardVisual(c){
-    const fat=getCardFaturas(c.id);
-    const ab=fat.filter(f=>!f.isPaid).reduce((s,f)=>s+f.total,0);
-    const pct=c.limit>0?Math.min(100,(ab/c.limit)*100):0;
-    const td=now.getDate();
-    const dC=c.closeDay>=td?c.closeDay-td:30-(td-c.closeDay);
-    const dD=c.dueDay>=td?c.dueDay-td:30-(td-c.dueDay);
-    const enc=c.status==='encerrado';
-    return '<div class="credit-card-visual" style="background:linear-gradient(135deg,'+c.color+','+c.color+'88);'+(enc?'opacity:.55;filter:grayscale(.4)':'')+'">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'
-      +'<div><div style="font-size:18px;font-weight:800;color:#fff">'+(c.tipo==='virtual'?'📱':'💳')+' '+c.name+'</div>'
-      +'<div style="font-size:12px;color:#ffffff88;margin-top:2px">'+c.brand.toUpperCase()+(enc?' · Encerrado':'')+'</div></div>'
-      +'<div style="display:flex;gap:6px">'
-      +'<button class="tx-act-btn" onclick="openCardModal(state.cards.find(x=>x.id===\''+c.id+'\'))" style="background:#ffffff22;border-color:#ffffff33;color:#fff">✏️</button>'
-      +'<button class="tx-act-btn del" onclick="deleteCard(\''+c.id+'\')" style="background:#ef444422;border-color:#ef444433;color:#ef4444">🗑️</button>'
-      +'<button class="tx-act-btn" onclick="openImportFaturaModal(\''+c.id+'\')" style="background:#ffffff22;border-color:#ffffff33;color:#fff">📥</button>'
-      +'</div></div>'
-      +'<div style="display:flex;gap:16px;margin-bottom:10px">'
-      +'<div><div style="font-size:10px;color:#ffffff66">Fatura Aberta</div><div style="font-size:20px;font-weight:800;color:#fff">'+fmt(ab)+'</div></div>'
-      +'<div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:#ffffff66">Limite</div><div style="font-size:15px;font-weight:700;color:#fff">'+fmt(c.limit)+'</div></div>'
-      +'</div>'
-      +'<div style="height:4px;background:#ffffff22;border-radius:2px;margin-bottom:8px"><div style="height:100%;width:'+pct.toFixed(0)+'%;background:'+(pct>80?'#ef4444':'#fff')+';border-radius:2px"></div></div>'
-      +'<div style="display:flex;justify-content:space-between;font-size:11px;color:#ffffff88">'
-      +'<span>Fecha dia '+c.closeDay+' ('+dC+'d)</span><span>Vence dia '+c.dueDay+' ('+dD+'d)</span>'
-      +'</div></div>';
-  }
+  ${state.cards.length===0?`<div class="card empty-state"><div class="empty-icon">💳</div><div class="empty-title">Nenhum cartão cadastrado</div><p>Cadastre seu cartão para controlar faturas e parcelamentos</p><br/><button class="btn btn-primary" onclick="openCardModal()">+ Cadastrar Cartão</button></div>`:`
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px">
+    ${state.cards.map(card=>{
+      const faturas=getCardFaturas(card.id);
+      const abertas=faturas.filter(f=>!f.isPaid);
+      const totalAberto=abertas.reduce((s,f)=>s+f.total,0);
+      const usagePercent=card.limit>0?(totalAberto/card.limit*100).toFixed(0):0;
+      const now=new Date();const today=now.getDate();
+      const daysToClose=card.closeDay>=today?card.closeDay-today:30-(today-card.closeDay);
+      const daysToDue=card.dueDay>=today?card.dueDay-today:30-(today-card.dueDay);
+      return`<div class="credit-card-visual" style="background:linear-gradient(135deg,${card.color},${card.color}88)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+          <div><div style="font-size:18px;font-weight:800;color:#fff">${card.name}</div><div style="font-size:12px;color:#ffffff88;margin-top:2px">${card.brand.toUpperCase()}</div></div>
+          <div style="display:flex;gap:6px">
+            <button class="tx-act-btn" onclick="openCardModal(state.cards.find(x=>x.id==='${card.id}'))" style="background:#ffffff22;border-color:#ffffff33;color:#fff">✏️</button>
+            <button class="tx-act-btn del" onclick="deleteCard('${card.id}')" style="background:#ef444422;border-color:#ef444433;color:#ef4444">🗑️</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:12px">
+          <div><div style="font-size:10px;color:#ffffff66">Fatura Aberta</div><div style="font-size:22px;font-weight:800;color:#fff">${fmt(totalAberto)}</div></div>
+          <div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:#ffffff66">Limite</div><div style="font-size:16px;font-weight:700;color:#fff">${fmt(card.limit)}</div></div>
+        </div>
+        <div style="height:4px;background:#ffffff22;border-radius:2px;margin-bottom:10px"><div style="height:100%;width:${Math.min(100,usagePercent)}%;background:${parseFloat(usagePercent)>80?'#ef4444':'#fff'};border-radius:2px"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#ffffff88">
+          <span>Fecha dia ${card.closeDay} (${daysToClose}d)</span>
+          <span>Vence dia ${card.dueDay} (${daysToDue}d)</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
 
-  function buildTxRow(t){
-    return '<div class="tx-item">'
-      +'<div class="tx-info"><div class="tx-desc">'+t.description+'</div>'
-      +'<div class="tx-meta"><span>'+fmtDate(t.date)+'</span></div></div>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<span style="font-weight:800;font-family:var(--mono);color:var(--crimson-bright)">'+fmt(t.amount)+'</span>'
-      +'<button class="tx-act-btn" onclick="openEditCreditTx(\''+t.id+'\')">✏️</button>'
-      +'<button class="tx-act-btn del" onclick="deleteCreditTx(\''+t.id+'\')">🗑️</button>'
-      +'</div></div>';
-  }
-
-  const tabBtn=function(tab,label){
-    const active=cv.tab===tab;
-    return '<button onclick="state.creditView.tab=\''+tab+'\';renderTab()" style="padding:8px 20px;border:none;background:transparent;font-size:13px;font-weight:'+(active?700:400)+';color:'+(active?'var(--crimson-bright)':'var(--muted)')+';border-bottom:2px solid '+(active?'var(--crimson-bright)':'transparent')+';cursor:pointer;font-family:var(--font)">'+label+'</button>';
-  };
-
-  const cardSel=state.cards.length>1
-    ?'<select onchange="state.creditView.cardId=this.value;renderTab()" style="font-size:13px;padding:6px 10px;border-radius:8px">'+state.cards.map(c=>'<option value="'+c.id+'"'+(c.id===cv.cardId?' selected':'')+'>'+(c.tipo==='virtual'?'📱':'💳')+' '+c.name+'</option>').join('')+'</select>'
-    :'';
-
-  const yearSel='<select onchange="state.creditView.year=parseInt(this.value);renderTab()" style="font-size:13px;padding:6px 10px;border-radius:8px">'+(allYears.length?allYears:[String(now.getFullYear())]).map(y=>'<option value="'+y+'"'+(parseInt(y)===cv.year?' selected':'')+'>' +y+'</option>').join('')+'</select>';
-
-  const monthSel='<select onchange="state.creditView.month=parseInt(this.value);renderTab()" style="font-size:13px;padding:6px 10px;border-radius:8px">'+(allMonths.length?allMonths:[now.getMonth()+1]).map(m=>'<option value="'+m+'"'+(m===cv.month?' selected':'')+'>'+MN[m-1]+'</option>').join('')+'</select>';
-
-  const payBtn=faturaAtual.isPaid
-    ?'<span style="background:#22c55e22;color:var(--green);border:1px solid #22c55e33;border-radius:5px;padding:4px 10px;font-size:12px;font-weight:700">✅ Paga</span>'
-    :'<button class="btn btn-primary" onclick="openPayFatura(\''+card?.id+'\',\''+monthKey+'\')">✝ Pagar Fatura</button>';
-
-  document.getElementById('content').innerHTML=
-    '<div class="page-header">'
-    +'<div class="page-title">Cartões de Crédito 💳</div>'
-    +'<div style="display:flex;gap:8px">'
-    +'<button class="btn btn-secondary" onclick="openImportFaturaModal()">📥 Importar Fatura</button>'
-    +'<button class="btn btn-primary" onclick="openCardModal()">+ Novo Cartão</button>'
-    +'</div></div>'
-    +(state.cards.length===0
-      ?'<div class="card empty-state"><div class="empty-icon">💳</div><div class="empty-title">Nenhum cartão cadastrado</div><br/><button class="btn btn-primary" onclick="openCardModal()">+ Cadastrar Cartão</button></div>'
-      :'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px">'+state.cards.map(buildCardVisual).join('')+'</div>'
-        +'<div style="display:flex;gap:0;border-bottom:1px solid var(--border-accent);margin-bottom:16px">'+tabBtn('faturas','✝ Faturas')+tabBtn('pagamentos','💰 Pagamentos')+'</div>'
-        +(cv.tab==='pagamentos'
-          ?'<div class="card" style="padding:0;overflow:hidden">'
-            +(faturaPayments.length===0
-              ?'<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;font-style:italic">Nenhum pagamento registrado.</div>'
-              :faturaPayments.map(t=>'<div class="tx-item"><div class="tx-cat-icon" style="background:#22c55e22;color:var(--green)">💳</div><div class="tx-info"><div class="tx-desc">'+t.description+'</div><div class="tx-meta"><span>'+fmtDate(t.date)+'</span></div></div><div style="font-weight:800;font-family:var(--mono);color:var(--green)">'+fmt(t.amount)+'</div></div>').join(''))
-            +'</div>'
-          :'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">'
-            +cardSel+yearSel+monthSel
-            +'<div style="margin-left:auto;font-size:13px;color:var(--muted)">'+faturaAtual.txs.length+' lançamento(s)</div>'
-            +'</div>'
-            +'<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:'+(faturaAtual.isPaid?'#22c55e0a':'var(--surface2)')+';border:1px solid '+(faturaAtual.isPaid?'#22c55e33':'var(--border-accent)')+';border-radius:10px;margin-bottom:12px">'
-            +'<div><div style="font-weight:700;font-size:15px;font-family:var(--cinzel)">'+MN[cv.month-1]+' '+cv.year+'</div>'
-            +'<div style="font-size:12px;color:var(--muted)">Vence '+fmtDate(faturaAtual.dueDate)+'</div></div>'
-            +'<div style="display:flex;align-items:center;gap:10px">'
-            +'<div style="font-weight:800;font-size:18px;color:'+(faturaAtual.isPaid?'var(--green)':'var(--crimson-bright)')+'">Total: '+fmt(faturaAtual.total)+'</div>'
-            +payBtn
-            +'</div></div>'
-            +(faturaAtual.txs.length===0
-              ?'<div class="card" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;font-style:italic">Nenhum lançamento neste período.</div>'
-              :'<div class="card" style="padding:0;overflow:hidden">'+faturaAtual.txs.map(buildTxRow).join('')+'</div>')
-        )
-    );
+  <div>
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">Faturas</div>
+    ${state.cards.map(card=>{
+      const faturas=getCardFaturas(card.id);
+      if(faturas.length===0)return'';
+      return`<div class="card" style="margin-bottom:14px">
+        <div class="card-title">${card.name}</div>
+        ${faturas.map(f=>`
+        <div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${f.isPaid?'#22c55e0a':'var(--surface2)'}">
+            <div>
+              <div style="font-weight:700;font-size:14px">${f.month}</div>
+              <div style="font-size:12px;color:var(--muted)">Vencimento: ${fmtDate(f.dueDate)} · ${f.txs.length} lançamentos</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="font-weight:800;font-size:16px;color:${f.isPaid?'var(--green)':'var(--red)'}">${fmt(f.total)}</div>
+              ${f.isPaid?'<span style="background:#22c55e22;color:var(--green);border:1px solid #22c55e33;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:700">✅ Paga</span>':`<button class="btn btn-primary btn-sm" onclick="openPayFatura('${card.id}','${f.month}')">Pagar</button>`}
+            </div>
+          </div>
+          ${f.txs.slice(0,3).map(t=>`<div class="fatura-item"><span style="color:var(--muted);flex-shrink:0">${fmtDate(t.date)}</span><span style="flex:1">${t.description}</span><span style="font-weight:700;color:var(--red)">${fmt(t.amount)}</span></div>`).join('')}
+          ${f.txs.length>3?`<div style="padding:8px 14px;font-size:12px;color:var(--muted)">+ ${f.txs.length-3} lançamentos</div>`:''}
+        </div>`).join('')}
+      </div>`;
+    }).join('')}
+  </div>`}`;
 }
-
-function openEditCreditTx(id){
-  const t=state.transactions.find(x=>x.id===id);
-  if(!t)return;
-  state.editingTxId=id;
-  document.getElementById('txAmount').value=t.amount;
-  document.getElementById('txDesc').value=t.description;
-  document.getElementById('txDate').value=t.date;
-  document.getElementById('txNote').value=t.note||'';
-  currentTxType=t.type;
-  openModal('txModal');
-}
-
-function deleteCreditTx(id){
-  if(!confirm('Apagar este lançamento da fatura?'))return;
-  state.transactions=state.transactions.filter(t=>t.id!==id);
-  saveState();renderTab();
-}
-
 
 // ── RECURRENCE REAL ──────────────────────────────────
 function generateRecurring(tx,months){
@@ -3044,27 +2978,15 @@ async function restoreFromSheets(silent=false){
   try{
     const res=await fetch(state.sheetUrl,{method:'GET',mode:'cors'});
     const data=JSON.parse(await res.text());
-    // merge: adiciona do Sheets apenas IDs que não existem localmente
-    if(data.transactions?.length){
-      const localIds=new Set(state.transactions.map(t=>t.id));
-      const newFromSheets=data.transactions.filter(t=>!localIds.has(t.id));
-      if(newFromSheets.length>0)state.transactions=[...state.transactions,...newFromSheets];
-    }
-    if(data.goals?.length){
-      const localIds=new Set(state.goals.map(g=>g.id));
-      const newFromSheets=data.goals.filter(g=>!localIds.has(g.id));
-      if(newFromSheets.length>0)state.goals=[...state.goals,...newFromSheets];
-    }
-    if(data.investments?.length){
-      const localIds=new Set(state.investments.map(i=>i.id));
-      const newFromSheets=data.investments.filter(i=>!localIds.has(i.id));
-      if(newFromSheets.length>0)state.investments=[...state.investments,...newFromSheets];
-    }
+    if(data.transactions?.length)state.transactions=data.transactions;
+    if(data.goals?.length)state.goals=data.goals;
+    if(data.investments?.length)state.investments=data.investments;
+    // restore API keys if saved in sheets
     if(data.claudeKey&&!state.claudeKey)state.claudeKey=data.claudeKey;
     if(data.geminiKey&&!state.geminiKey)state.geminiKey=data.geminiKey;
     if(data.aiProvider)state.aiProvider=data.aiProvider;
     saveState();syncState='ok';updateSyncUI();
-    addLog('sync',`Restaurado: ${data.transactions?.length||0} lançamentos do Sheets`);
+    addLog('sync',`Restaurado: ${data.transactions?.length||0} lançamentos`);
     if(!silent){renderTab();alert('✅ Dados restaurados do Sheets!')}
     else renderTab();
   }catch(e){
@@ -3075,7 +2997,7 @@ async function restoreFromSheets(silent=false){
 }
 
 function bootApp(){
-  applyTheme();navigate('dashboard');
+  applyTheme();applyBg();navigate('dashboard');document.getElementById('bugReportBtn').style.display='block';document.getElementById('customBtn').style.display='flex';
   if(state.sheetUrl)setTimeout(()=>syncNow(),1500);
 }
 
@@ -3130,22 +3052,9 @@ function toggleNewDevice(){
 
 // ── AUTH FUNCTIONS ──
 const APP_SESSION='mm_session';
-const APP_VERSION='1.2.5';
-const APP_BUILD='r5';
-const CHANGELOG=[
-  {version:'1.2.5-r5',type:'novo',text:'Personalização de fundo — troque a imagem e ajuste opacidade pelo botão 🎨'},
-  {version:'1.2.5-r5',type:'novo',text:'Changelog nas configurações — histórico de mudanças'},
-  {version:'1.2.5-r4',type:'novo',text:'Importar fatura PDF do Banco Inter nos Cartões de Crédito'},
-  {version:'1.2.5-r4',type:'novo',text:'Cartões físico/virtual com status ativo/encerrado'},
-  {version:'1.2.5-r3',type:'fix',text:'Username com acento (ex: Maíra) não virava anon — normalizado'},
-  {version:'1.2.5-r3',type:'fix',text:'F5 não apagava mais dados — restoreFromSheets faz merge'},
-  {version:'1.2.5-r2',type:'fix',text:'Sync erro — showToast não estava definida'},
-  {version:'1.2.5-r2',type:'fix',text:'Busca geral não funcionava — toggleGlobalSearch adicionada'},
-];
 function getLocalPwd(){return localStorage.getItem('mm_app_pwd')||''}
 function getLocalUser(){return localStorage.getItem('mm_username')||''}
-function normalizeUser(str){return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
-function setLocalAuth(user,pwd){localStorage.setItem('mm_username',normalizeUser(user));localStorage.setItem('mm_app_pwd',pwd)}
+function setLocalAuth(user,pwd){localStorage.setItem('mm_username',user);localStorage.setItem('mm_app_pwd',pwd)}
 function isSessionValid(){try{const s=JSON.parse(sessionStorage.getItem(APP_SESSION)||'{}');return s.valid&&(Date.now()-s.ts)<8*60*60*1000}catch{return false}}
 function setSession(){sessionStorage.setItem(APP_SESSION,JSON.stringify({valid:true,ts:Date.now()}))}
 
@@ -3197,158 +3106,6 @@ async function submitLock(){
     err.textContent='Usuário ou senha incorretos.';err.style.display='block';
   }
   document.getElementById('lockPwdInput').value='';
-}
-
-// ── IMPORTAR FATURA PDF INTER ─────────────────────
-let importFaturaPreselectedCardId = null;
-let parsedFaturaGroups = [];
-
-function openImportFaturaModal(preCardId=null){
-  importFaturaPreselectedCardId = preCardId || null;
-  parsedFaturaGroups = [];
-  document.getElementById('importFaturaFile').value='';
-  document.getElementById('importFaturaStep1').style.display='block';
-  document.getElementById('importFaturaStep2').style.display='none';
-  document.getElementById('importFaturaErr').style.display='none';
-  openModal('importFaturaModal');
-}
-
-async function processImportFatura(){
-  const file = document.getElementById('importFaturaFile').files[0];
-  if(!file){alert('Selecione um PDF.');return;}
-  const btn=document.getElementById('importFaturaBtn');
-  btn.disabled=true;btn.textContent='Lendo PDF...';
-  try{
-    const text = await extractPdfText(file);
-    parsedFaturaGroups = parseInterFatura(text);
-    if(!parsedFaturaGroups.length){throw new Error('Nenhuma transação encontrada. Verifique se é uma fatura Inter.');}
-    renderImportFaturaStep2();
-    document.getElementById('importFaturaStep1').style.display='none';
-    document.getElementById('importFaturaStep2').style.display='block';
-  }catch(e){
-    document.getElementById('importFaturaErr').textContent='Erro: '+e.message;
-    document.getElementById('importFaturaErr').style.display='block';
-  }
-  btn.disabled=false;btn.textContent='Continuar →';
-}
-
-async function extractPdfText(file){
-  return new Promise((res,rej)=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const bytes=new Uint8Array(e.target.result);
-      let text='';
-      for(let i=0;i<bytes.length;i++){
-        const c=bytes[i];
-        if(c>=32&&c<127)text+=String.fromCharCode(c);
-        else if(c===10||c===13)text+='\n';
-      }
-      res(text);
-    };
-    reader.onerror=rej;
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-function parseInterFatura(text){
-  const groups=[];
-  const cardHeaderRe=/CART[AÃ]O\s+(\d{4}\*{4}\d{4})/gi;
-  const parts=text.split(cardHeaderRe);
-  for(let i=1;i<parts.length;i+=2){
-    const block=parts[i+1]||'';
-    const txs=parseInterBlock(block);
-    if(txs.length) groups.push({cardSuffix:parts[i], txs});
-  }
-  if(!groups.length){
-    const allTxs=parseInterBlock(text);
-    if(allTxs.length) groups.push({cardSuffix:'????', txs:allTxs});
-  }
-  return groups;
-}
-
-function parseInterBlock(block){
-  const txs=[];
-  const monthMap={jan:1,fev:2,'mar':3,abr:4,'mai':5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
-  const lineRe=/(\d{1,2})\s+de\s+([a-z]+)\.?\s+(\d{4})\s+(.+?)\s+R\$\s*([\d.,]+)/gi;
-  let m;
-  while((m=lineRe.exec(block))!==null){
-    const day=parseInt(m[1]);
-    const mon=monthMap[m[2].toLowerCase().slice(0,3)]||1;
-    const year=parseInt(m[3]);
-    const desc=m[4].trim().replace(/\s+/g,' ');
-    const valor=parseFloat(m[5].replace('.','').replace(',','.'));
-    if(!valor||valor<=0)continue;
-    if(/^total\s/i.test(desc))continue;
-    const date=`${year}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const fp=simpleHash(`${date}|${desc}|${valor}`);
-    const parcelMatch=desc.match(/\(Parcela\s+(\d+)\s+de\s+(\d+)\)/i);
-    txs.push({date,description:desc,valor,fp,
-      isParcel:!!parcelMatch,
-      parcelNum:parcelMatch?parseInt(parcelMatch[1]):null,
-      parcelTotal:parcelMatch?parseInt(parcelMatch[2]):null,
-    });
-  }
-  return txs;
-}
-
-function renderImportFaturaStep2(){
-  const ativos=state.cards.filter(c=>c.status!=='encerrado');
-  const existingFps=new Set(state.transactions.map(t=>simpleHash(`${t.date}|${t.description}|${t.amount}`)));
-  const html=parsedFaturaGroups.map((g,gi)=>{
-    const novos=g.txs.filter(t=>!existingFps.has(t.fp));
-    const dups=g.txs.filter(t=>existingFps.has(t.fp));
-    const preSelected=importFaturaPreselectedCardId&&gi===0?importFaturaPreselectedCardId:'';
-    return`<div style="margin-bottom:20px">
-      <div style="font-weight:700;font-size:14px;margin-bottom:8px">Cartão ${g.cardSuffix}</div>
-      <div class="form-group"><label class="form-label">Vincular a:</label>
-        <select id="importCard_${gi}">
-          ${ativos.map(c=>`<option value="${c.id}"${c.id===preSelected?' selected':''}>${c.tipo==='virtual'?'📱':'💳'} ${c.name}</option>`).join('')}
-          <option value="__novo__">+ Criar novo cartão</option>
-        </select>
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${novos.length} nova(s) · ${dups.length} duplicada(s) serão ignoradas</div>
-      <div style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
-        ${g.txs.map(t=>{
-          const isDup=existingFps.has(t.fp);
-          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);opacity:${isDup?'0.4':'1'}">
-            <div>
-              <div style="font-size:12px;font-weight:600">${t.description}${isDup?' <span style="color:var(--muted);font-size:10px">(já existe)</span>':''}</div>
-              <div style="font-size:11px;color:var(--muted)">${fmtDate(t.date)}</div>
-            </div>
-            <div style="font-weight:800;font-family:var(--mono);font-size:13px;color:var(--crimson-bright)">−${fmt(t.valor)}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('importFaturaStep2').innerHTML=`
-    <div style="font-size:14px;font-weight:700;margin-bottom:16px">✝ Revise e vincule os cartões</div>
-    ${html}
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn btn-primary" style="flex:1" onclick="confirmImportFatura()">✅ Importar</button>
-      <button class="btn btn-secondary" onclick="closeModal('importFaturaModal')">Cancelar</button>
-    </div>`;
-}
-
-function confirmImportFatura(){
-  const existingFps=new Set(state.transactions.map(t=>simpleHash(`${t.date}|${t.description}|${t.amount}`)));
-  let totalImported=0;
-  parsedFaturaGroups.forEach((g,gi)=>{
-    const cardId=document.getElementById(`importCard_${gi}`)?.value;
-    if(!cardId||cardId==='__novo__')return;
-    g.txs.filter(t=>!existingFps.has(t.fp)).forEach(t=>{
-      state.transactions.unshift({
-        id:uid(),type:'expense',amount:t.valor,
-        description:t.description,category:'outros',date:t.date,
-        recurrence:'none',tags:[],note:'Importado fatura Inter',
-        payment:'credit',cardId,createdAt:new Date().toISOString(),
-      });
-      totalImported++;
-    });
-  });
-  saveState();closeModal('importFaturaModal');renderTab();
-  if(totalImported>0){showToast(`✝ ${totalImported} transação(ões) importada(s)!`);}
-  else{showToast('Nenhuma transação nova.','warn');}
 }
 
 function simpleHash(str){let h=0;for(let i=0;i<str.length;i++)h=Math.imul(31,h)+str.charCodeAt(i)|0;return Math.abs(h).toString(36)}
@@ -3511,45 +3268,30 @@ function renderSettings(){
   document.getElementById('content').innerHTML=`
   <div class="page-header"><div class="page-title">Configurações</div></div>
 
-  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Sobre</div>
-  <div class="card" style="margin-bottom:24px">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:48px;height:48px;background:var(--crimson);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">💰</div>
-        <div>
-          <div style="font-weight:800;font-size:16px;font-family:var(--cinzel)">Maíra's Money</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Controle financeiro pessoal</div>
-        </div>
-      </div>
+  <div class="card" style="margin-bottom:16px;border-color:var(--border-accent)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-family:var(--cinzel);font-size:13px;font-weight:700;color:var(--text);letter-spacing:2px">Maíra's Money</div>
       <div style="text-align:right">
-        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--crimson-bright)">v${APP_VERSION}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">${APP_BUILD}</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--crimson-bright)">v${APP_VERSION}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--cinzel);letter-spacing:1px">build ${APP_BUILD}</div>
       </div>
     </div>
   </div>
 
-
-  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;font-family:var(--cinzel)">✝ O que há de novo</div>
+  <div style="font-family:var(--cinzel);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px">✝ O que há de novo</div>
   <div class="card" style="margin-bottom:24px">
-    \${CHANGELOG.slice(0,8).map(function(c){
-      var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fecaca':'background:#1a2030;color:#bfdbfe';
+    ${CHANGELOG.slice(0,6).map(function(c){
+      var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fca5a5':'background:#1a2030;color:#93c5fd';
       return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
-        +'<span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;'+badge+'">'
+        +'<span style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--cinzel);letter-spacing:1px;'+badge+'">'
         +(c.type==='novo'?'✨ NOVO':c.type==='fix'?'🐛 FIX':'⚡ OK')
         +'</span>'
         +'<div style="flex:1">'
         +'<div style="font-size:12px;color:var(--text)">'+(c.text||'')+'</div>'
-        +'<div style="font-size:10px;color:var(--muted);margin-top:2px">v'+(c.version||'')+'</div>'
+        +'<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--cinzel);letter-spacing:1px">v'+(c.version||'')+'</div>'
         +'</div>'
         +'</div>';
     }).join('')}
-  </div>
-
-  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">🐛 Bugs & Feedback</div>
-  <div class="card" style="margin-bottom:24px">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px">Exportar Feedbacks</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Exporta todos os feedbacks com status <strong>novo</strong> e copia para o clipboard. Mande para o Lucas analisar!</div>
-    <button class="icon-btn primary" onclick="exportBugs()">📤 Exportar Bugs Novos</button>
   </div>
 
   <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Segurança</div>
@@ -3572,15 +3314,6 @@ function renderSettings(){
     </div>
     <div style="font-size:11px;color:var(--muted);margin-top:8px">Saldo atual: <strong style="color:var(--crimson-bright)">${fmt(getBalance())}</strong> (inicial + lançamentos)</div>
   </div>
-
-  ${state.cards.length>0?`
-  <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Cartão Principal</div>
-  <div class="card" style="margin-bottom:24px">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Aparece no Dashboard com fatura aberta e limite.</div>
-    <select onchange="state.primaryCardId=this.value;saveState();renderTab()" style="font-size:13px;padding:8px 12px;border-radius:8px;width:100%">
-      ${state.cards.map(c=>`<option value="${c.id}"${c.id===state.primaryCardId?' selected':''}>${c.tipo==='virtual'?'📱':'💳'} ${c.name}</option>`).join('')}
-    </select>
-  </div>`:''}
 
   <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Aparência</div>
   <div class="card" style="margin-bottom:24px">
@@ -4026,6 +3759,80 @@ async function deleteSheetPeriod(from,to){
 
 function openSheetDeleteModal(){document.getElementById('sheetDelFrom').value='';document.getElementById('sheetDelTo').value='';openModal('sheetDeleteModal')}
 
+
+// ── BACKGROUND CUSTOMIZATION ──
+function applyBg(){
+  var el=document.getElementById('app-bg');
+  if(!el)return;
+  if(state.bgImage){
+    el.style.backgroundImage='url('+state.bgImage+')';
+    el.style.backgroundPosition=state.bgPosition||'center 30%';
+    el.style.opacity=state.bgOpacity||0;
+  } else {
+    el.style.backgroundImage='none';
+    el.style.opacity=0;
+  }
+}
+
+function openCustomModal(){
+  document.getElementById('customModal').style.display='flex';
+  document.getElementById('bgOpacitySlider').value=Math.round((state.bgOpacity||0)*100);
+  document.getElementById('bgOpacityVal').textContent=Math.round((state.bgOpacity||0)*100)+'%';
+  var pos=state.bgPosition||'center 30%';
+  var sel=document.getElementById('bgPositionSel');
+  if(pos.includes('top'))sel.value='top';
+  else if(pos.includes('bottom'))sel.value='bottom';
+  else sel.value='center';
+}
+
+function closeCustomModal(){
+  document.getElementById('customModal').style.display='none';
+}
+
+function handleBgUpload(input){
+  var file=input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var max=800,w=img.width,h=img.height;
+      if(w>max){h=Math.round(h*max/w);w=max;}
+      if(h>max){w=Math.round(w*max/h);h=max;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL('image/jpeg',0.6);
+      state.bgImage=compressed;
+      applyBg();saveState();
+      showToast('✝ Imagem de fundo aplicada!');
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeBgImage(){
+  state.bgImage=null;
+  var el=document.getElementById('app-bg');
+  if(el){el.style.backgroundImage='none';el.style.opacity=0;}
+  state.bgOpacity=0;state.bgPosition='center 30%';
+  saveState();
+  showToast('✝ Imagem removida. Fundo das trevas restaurado.');
+  closeCustomModal();
+}
+
+function saveBgSettings(){
+  var opacity=parseInt(document.getElementById('bgOpacitySlider').value)/100;
+  var posVal=document.getElementById('bgPositionSel').value;
+  var posMap={top:'center top',center:'center 30%',bottom:'center bottom'};
+  state.bgOpacity=opacity;
+  state.bgPosition=posMap[posVal]||'center 30%';
+  applyBg();saveState();
+  showToast('✝ Fundo configurado!');
+  closeCustomModal();
+}
+
 // ── GOTHIC OVERRIDES ──
 function navigate(tab) {
   state.tab = tab;
@@ -4052,7 +3859,6 @@ function navigate(tab) {
 document.addEventListener('DOMContentLoaded', () => {
   try {
     loadState();
-    applyBg();
     applyTheme();
     checkAuth();
   } catch(e) {
@@ -4085,239 +3891,116 @@ document.addEventListener('keydown', e => {
 });
 
 // Fix globalSearchResults visibility
-function toggleGlobalSearch(){
-  const bar=document.getElementById('globalSearchBar');
-  if(!bar)return;
-  const visible=bar.style.display==='flex';
-  bar.style.display=visible?'none':'flex';
-  if(!visible){
-    const inp=document.getElementById('globalSearchInput');
-    if(inp){inp.value='';inp.focus();}
-    const res=document.getElementById('globalSearchResults');
-    if(res)res.style.display='none';
-  }
-}
-
 const origRunSearch = runGlobalSearch;
 function runGlobalSearch(q) {
   origRunSearch(q);
   const res = document.getElementById('globalSearchResults');
   if (res) res.style.display = q && q.length >= 2 ? 'block' : 'none';
 }
-
-
-// ── PERSONALIZAÇÃO DE FUNDO ───────────────────────
-function applyBg(){
-  var el=document.getElementById('app-bg');
-  if(!el)return;
-  if(state.bgImage){
-    el.style.backgroundImage='url('+state.bgImage+')';
-    el.style.backgroundPosition=state.bgPosition||'center 30%';
-    el.style.opacity=state.bgOpacity||0;
-  } else {
-    el.style.backgroundImage='none';
-    el.style.opacity=0;
-  }
-}
-function openCustomModal(){
-  document.getElementById('customModal').style.display='flex';
-  document.getElementById('bgOpacitySlider').value=Math.round((state.bgOpacity||0)*100);
-  document.getElementById('bgOpacityVal').textContent=Math.round((state.bgOpacity||0)*100)+'%';
-  var pos=state.bgPosition||'center 30%';
-  var sel=document.getElementById('bgPositionSel');
-  if(pos.includes('top'))sel.value='top';
-  else if(pos.includes('bottom'))sel.value='bottom';
-  else sel.value='center';
-}
-function closeCustomModal(){document.getElementById('customModal').style.display='none';}
-function handleBgUpload(input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      var canvas=document.createElement('canvas');
-      var max=800,w=img.width,h=img.height;
-      if(w>max){h=Math.round(h*max/w);w=max;}
-      if(h>max){w=Math.round(w*max/h);h=max;}
-      canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      state.bgImage=canvas.toDataURL('image/jpeg',0.6);
-      applyBg();saveState();
-      showToast('✅ Imagem de fundo aplicada!');
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-function removeBgImage(){
-  state.bgImage=null;
-  var el=document.getElementById('app-bg');
-  if(el){el.style.backgroundImage='none';el.style.opacity=0;}
-  state.bgOpacity=0;state.bgPosition='center 30%';
-  saveState();showToast('✝ Imagem removida. Fundo das trevas restaurado.');closeCustomModal();
-}
-function saveBgSettings(){
-  var opacity=parseInt(document.getElementById('bgOpacitySlider').value)/100;
-  var posVal=document.getElementById('bgPositionSel').value;
-  var posMap={top:'center top',center:'center 30%',bottom:'center bottom'};
-  state.bgOpacity=opacity;state.bgPosition=posMap[posVal]||'center 30%';
-  applyBg();saveState();showToast('✅ Fundo personalizado salvo!');closeCustomModal();
-}
-
-// ── TOAST ─────────────────────────────────────────
-function showToast(msg, type='success'){
-  const existing=document.getElementById('mm-toast');
-  if(existing)existing.remove();
-  const t=document.createElement('div');
-  t.id='mm-toast';
-  const bg=type==='error'?'var(--crimson-bright)':type==='warn'?'#b45309':'#166534';
-  t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.4);pointer-events:none;font-family:var(--cinzel);letter-spacing:1px`;
-  t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2800);
-}
-
-// ── FEEDBACK SYSTEM ───────────────────────────────
-let currentFeedbackType='bug';
-
-function openFeedbackModal(){
-  const modal=document.getElementById('feedbackModal');
-  if(modal){
-    document.getElementById('feedbackDesc').value='';
-    document.getElementById('feedbackError').style.display='none';
-    document.getElementById('feedbackSuccess').style.display='none';
-    document.getElementById('feedbackSubmitBtn').textContent='📤 Enviar';
-    document.getElementById('feedbackSubmitBtn').disabled=false;
-    currentFeedbackType='bug';
-    document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='bug'));
-    modal.style.display='flex';
-  }
-}
-
-async function submitFeedback(){
-  const desc=document.getElementById('feedbackDesc').value.trim();
-  const err=document.getElementById('feedbackError');
-  const success=document.getElementById('feedbackSuccess');
-  const btn=document.getElementById('feedbackSubmitBtn');
-  if(!desc){err.textContent='Descreva o problema antes de enviar.';err.style.display='block';return;}
-  if(!state.sheetUrl){err.textContent='Configure o Google Sheets para enviar feedback.';err.style.display='block';return;}
-  btn.textContent='Enviando...';btn.disabled=true;err.style.display='none';
-  try{
-    await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'feedback',feedbackType:currentFeedbackType,page:TAB_TITLES[state.tab]||state.tab,description:desc,user:getLocalUser()||'anon',version:APP_VERSION})});
-    // salva localmente para exportBugs
-    if(!state.feedbackLog)state.feedbackLog=[];
-    state.feedbackLog.push({type:currentFeedbackType,page:TAB_TITLES[state.tab]||state.tab,description:desc,user:getLocalUser()||'anon',version:APP_VERSION,date:new Date().toLocaleString('pt-BR'),status:'novo'});
-    saveState();
-    success.style.display='block';
-    btn.textContent='✅ Enviado!';
-    setTimeout(()=>{document.getElementById('feedbackModal').style.display='none';},2000);
-  }catch(e){
-    err.textContent='Erro ao enviar. Tente novamente.';
-    err.style.display='block';btn.textContent='📤 Enviar';btn.disabled=false;
-  }
-}
-
-async function exportBugs(){
-  if(!state.sheetUrl){alert('Configure a URL do Sheets primeiro.');return;}
-  const btn=event.target;btn.disabled=true;btn.textContent='Exportando...';
-  try{
-    const novos=(state.feedbackLog||[]).filter(f=>f.status==='novo');
-    if(novos.length===0){
-      alert('Nenhum feedback novo para exportar! ✅');
-      btn.disabled=false;btn.textContent='📤 Exportar Bugs Novos';return;
-    }
-    const linhas=[
-      `Maíra's Money v${APP_VERSION} — Export de Feedbacks`,
-      `Data: ${new Date().toLocaleString('pt-BR')}`,
-      `Total: ${novos.length} feedback(s) novo(s)`,
-      '─'.repeat(50),
-      ...novos.map((f,i)=>[
-        `\n[${i+1}] ${(f.type||'bug').toUpperCase()} — ${f.page||'?'} — v${f.version||'?'}`,
-        `Data: ${f.date||'?'}`,
-        `Usuário: ${f.user||'anon'}`,
-        `Descrição: ${f.description}`,
-      ].join('\n')),
-    ].join('\n');
-    await navigator.clipboard.writeText(linhas);
-    (state.feedbackLog||[]).forEach(f=>{if(f.status==='novo')f.status='enviado';});
-    saveState();
-    novos.forEach(f=>{
-      if(f.sheetIndex){
-        fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body:JSON.stringify({action:'mark_feedback_sent',index:f.sheetIndex})}).catch(()=>{});
-      }
-    });
-    alert(`✅ ${novos.length} feedback(s) copiado(s) para o clipboard!\n\nMande para o Lucas para ele analisar. 😊`);
-  }catch(e){alert('Erro: '+e.message);}
-  btn.disabled=false;btn.textContent='📤 Exportar Bugs Novos';
-}
-
-function getLocalUser(){
-  try{return JSON.parse(sessionStorage.getItem(APP_SESSION)||'{}').user||'';}catch{return '';}
-}
 </script>
+<!-- BUG REPORT BUTTON -->
+<button id="customBtn" onclick="openCustomModal()" title="Personalizar fundo" style="position:fixed;bottom:24px;right:76px;z-index:900;width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.8);transition:all .2s;display:none;">🎨</button>
 
-<button id="customBtn" onclick="openCustomModal()" title="Personalizar fundo">🎨</button>
+<div id="bugReportBtn" style="position:fixed;bottom:24px;right:24px;z-index:500;display:none;">
+  <button onclick="openBugReport()" style="background:var(--surface);border:.5px solid var(--border-accent);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.5);transition:all .2s;" title="Reportar Bug" onmouseover="this.style.background='var(--crimson-faint)'" onmouseout="this.style.background='var(--surface)'">🦇</button>
+</div>
 
-<!-- PERSONALIZAÇÃO MODAL -->
-<div id="customModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.8)">
+<!-- CUSTOMIZAÇÃO MODAL -->
+<div id="customModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:var(--surface);border:.5px solid var(--border-accent);border-radius:10px;padding:24px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.8)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <div style="font-weight:800;font-size:16px;font-family:var(--cinzel)">🎨 Personalizar Fundo</div>
+      <div style="font-family:var(--cinzel);font-size:14px;font-weight:700;letter-spacing:3px;color:var(--crimson-bright);text-transform:uppercase">🎨 Personalizar Fundo</div>
       <button onclick="closeCustomModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted)">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Imagem de fundo</div>
-        <label style="display:block;padding:10px 14px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:13px;color:var(--muted)">
+        <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px">Imagem de fundo</div>
+        <label style="display:block;padding:12px;background:var(--surface2);border:1px dashed var(--border-accent);border-radius:6px;cursor:pointer;text-align:center;font-size:13px;color:var(--muted);font-style:italic">
           📁 Escolher imagem do dispositivo
           <input type="file" accept="image/*" style="display:none" onchange="handleBgUpload(this)">
         </label>
       </div>
       <div>
         <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Opacidade</div>
+          <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px">Opacidade</div>
           <span id="bgOpacityVal" style="font-size:12px;font-weight:700;color:var(--crimson-bright)">0%</span>
         </div>
-        <input type="range" id="bgOpacitySlider" min="0" max="30" value="0" style="width:100%;accent-color:var(--crimson-bright)" oninput="document.getElementById('bgOpacityVal').textContent=this.value+'%'">
+        <input type="range" id="bgOpacitySlider" min="0" max="30" value="0" style="width:100%;accent-color:var(--crimson)" oninput="document.getElementById('bgOpacityVal').textContent=this.value+'%'">
       </div>
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Posição vertical</div>
-        <select id="bgPositionSel" style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+        <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px">Posição vertical</div>
+        <select id="bgPositionSel" style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--cinzel);font-size:11px;letter-spacing:1px">
           <option value="top">Topo</option>
           <option value="center" selected>Centro</option>
           <option value="bottom">Baixo</option>
         </select>
       </div>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <button onclick="removeBgImage()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px">🗑️ Remover</button>
-        <button onclick="saveBgSettings()" style="flex:2;padding:10px;background:var(--crimson-bright);border:none;border-radius:8px;cursor:pointer;color:#fff;font-weight:700;font-size:13px;font-family:var(--cinzel)">Salvar</button>
+        <button onclick="removeBgImage()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--muted);font-family:var(--cinzel);font-size:10px;letter-spacing:1px;text-transform:uppercase">🗑️ Remover</button>
+        <button onclick="saveBgSettings()" style="flex:2;padding:10px;background:var(--crimson);border:none;border-radius:6px;cursor:pointer;color:#fff;font-family:var(--cinzel);font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase">✝ Salvar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL FEEDBACK -->
-<div id="feedbackModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-  <div class="modal-box" style="max-width:460px;width:100%">
-    <div class="modal-title">🐛 Reportar para o Lucas</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="fb-type-btn icon-btn active" data-type="bug" onclick="currentFeedbackType='bug';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='bug'))">🐛 Bug</button>
-      <button class="fb-type-btn icon-btn" data-type="sugestao" onclick="currentFeedbackType='sugestao';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='sugestao'))">💡 Sugestão</button>
-      <button class="fb-type-btn icon-btn" data-type="duvida" onclick="currentFeedbackType='duvida';document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='duvida'))">❓ Dúvida</button>
+<div id="bugReportModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'bugReportModal')">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">✝ Reportar Bug</div>
+      <button class="modal-close" onclick="closeModal('bugReportModal')">×</button>
     </div>
-    <div class="form-label" style="margin-bottom:6px">Descreva o problema ou sugestão</div>
-    <textarea id="feedbackDesc" rows="4" style="width:100%;resize:vertical;font-family:inherit;font-size:13px;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text)" placeholder="Ex: Na tela de Investimentos, o botão X não funciona..."></textarea>
-    <div id="feedbackError" style="display:none;color:var(--crimson-bright);font-size:12px;margin-top:6px"></div>
-    <div id="feedbackSuccess" style="display:none;color:#22c55e;font-size:12px;margin-top:6px">✅ Feedback enviado!</div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="icon-btn primary" style="flex:2" id="feedbackSubmitBtn" onclick="submitFeedback()">📤 Enviar</button>
-      <button class="icon-btn" onclick="document.getElementById('feedbackModal').style.display='none'">Cancelar</button>
+    <div class="form-group">
+      <label class="form-label">O que aconteceu?</label>
+      <textarea id="bugDesc" rows="4" placeholder="Descreva o problema com o máximo de detalhes..."></textarea>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">v${APP_VERSION} · ${TAB_TITLES[state?.tab]||'App'}</div>
+    <div class="form-group">
+      <label class="form-label">Onde aconteceu?</label>
+      <select id="bugPage"><option value="">Selecione a tela...</option><option>Dashboard</option><option>Lançamentos</option><option>Relatórios</option><option>Metas</option><option>Projeções</option><option>Investimentos</option><option>Cartões</option><option>Configurações</option><option>Outra</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Gravidade</label>
+      <select id="bugSeverity"><option value="low">🟡 Leve</option><option value="medium" selected>🟠 Médio</option><option value="high">🔴 Grave</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bugReportModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitBugReport()">✝ Enviar</button>
+    </div>
   </div>
 </div>
+
+<script>
+function openBugReport(){
+  document.getElementById('bugDesc').value='';
+  document.getElementById('bugPage').value='';
+  document.getElementById('bugSeverity').value='medium';
+  openModal('bugReportModal');
+}
+
+function submitBugReport(){
+  const desc=document.getElementById('bugDesc').value.trim();
+  const page=document.getElementById('bugPage').value;
+  const sev=document.getElementById('bugSeverity').value;
+  if(!desc){showToast('Descreva o problema','warn');return;}
+  
+  const report={
+    desc, page, severity:sev,
+    version:APP_VERSION+'-'+APP_BUILD,
+    tab:state.tab||'',
+    ua:navigator.userAgent.slice(0,80),
+    ts:new Date().toLocaleString('pt-BR')
+  };
+  
+  // Save to log
+  addLog('bug', `[${sev.toUpperCase()}] ${page}: ${desc.slice(0,80)}`);
+  
+  // Save to localStorage for persistence
+  const bugs = JSON.parse(localStorage.getItem('mm_bugs')||'[]');
+  bugs.push(report);
+  localStorage.setItem('mm_bugs', JSON.stringify(bugs.slice(-50)));
+  
+  closeModal('bugReportModal');
+  showToast('✝ Bug reportado! Obrigada ♥');
+}
+</script>
 </body>
 </html>
