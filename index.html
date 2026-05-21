@@ -40,7 +40,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* ── LAYOUT ── */
 #app{display:flex;height:100vh;overflow:hidden;position:relative;z-index:1;flex-direction:row;}
-#sidebar{width:220px!important;min-width:220px!important;max-width:220px!important;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0!important;transition:transform .3s ease;z-index:10;position:relative;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;}
+#sidebar{width:220px!important;min-width:220px!important;max-width:220px!important;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0!important;transition:transform .3s ease;z-index:10;position:relative;overflow:hidden;box-sizing:border-box;}
 #sidebar::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--border-accent),transparent);}
 #main{flex:1;min-width:0;width:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;}
 #topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:30;flex-shrink:0;}
@@ -60,7 +60,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .nav-icon-wrap{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--surface2);flex-shrink:0;transition:background .15s;}
 .nav-item.active .nav-icon-wrap{background:var(--crimson-faint);}
 .nav-divider{height:.5px;background:linear-gradient(90deg,transparent,var(--border-accent),transparent);margin:6px 16px;flex-shrink:0;}
-.sidebar-bottom{margin-top:auto;border-top:.5px solid var(--border);padding:8px;}
+.sidebar-bottom{flex-shrink:0;border-top:.5px solid var(--border);padding:8px;background:var(--surface);}
 .sync-nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);transition:all .15s;margin:1px 0;border:none;background:transparent;text-align:left;width:100%;position:relative;}
 .sync-nav-btn:hover{background:var(--surface2);}
 .sync-status-icon{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);flex-shrink:0;}
@@ -261,7 +261,7 @@ select option{background:var(--surface2);}
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   #hamburger{display:flex!important;}
-  #sidebar{width:220px!important;min-width:220px!important;max-width:220px!important;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0!important;transition:transform .3s ease;z-index:10;position:relative;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;}
+  #sidebar{width:220px!important;min-width:220px!important;max-width:220px!important;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0!important;transition:transform .3s ease;z-index:10;position:relative;overflow:hidden;box-sizing:border-box;}
   #sidebar.open{transform:translateX(0);box-shadow:4px 0 32px rgba(0,0,0,.6);}
   #sidebar-overlay{display:none;}
   #sidebar-overlay.active{display:block!important;}
@@ -467,6 +467,7 @@ select option{background:var(--surface2);}
       </div>
       <div class="sidebar-title">Maíra's Money</div>
     </div>
+    <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
     <div class="nav-section-label">Principal</div>
     <button class="nav-item active" data-tab="dashboard"><span class="nav-icon-wrap">📊</span>Dashboard</button>
     <button class="nav-item" data-tab="transactions"><span class="nav-icon-wrap">📋</span>Lançamentos</button>
@@ -480,6 +481,7 @@ select option{background:var(--surface2);}
     <button class="nav-item" data-tab="investments"><span class="nav-icon-wrap">📈</span>Investimentos</button>
     <button class="nav-item" data-tab="credit"><span class="nav-icon-wrap">💳</span>Cartões</button>
 
+    </div>
     <div class="sidebar-bottom">
       <button class="nav-item" data-tab="settings" style="width:100%;margin:0 0 4px"><span class="nav-icon-wrap">⚙️</span>Configurações</button>
       <div style="position:relative">
@@ -3284,6 +3286,30 @@ function showImportStep(n){
   else if(s2) s2.style.display='none';
 }
 
+
+function renderBugsList(){
+  const container = document.getElementById('bugsListContainer');
+  if(!container) return;
+  const logs = state.feedbackLog || [];
+  if(!logs.length){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic;font-size:12px">Nenhum bug registrado ainda.</div>';
+    return;
+  }
+  const items = logs.slice().reverse().slice(0,10).map(function(f){
+    const ti = f.feedbackType==='bug' ? '🐛' : f.feedbackType==='sugestao' ? '💡' : '❓';
+    const sc = f.status==='novo' ? 'var(--crimson-bright)' : 'var(--muted)';
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start">'
+      + '<span style="font-size:14px;flex-shrink:0">' + ti + '</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (f.description||'').slice(0,80) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (f.page||'') + ' · ' + (f.date||'') + '</div>'
+      + '</div>'
+      + '<span style="font-size:9px;font-family:var(--cinzel);letter-spacing:1px;color:'+sc+';flex-shrink:0;text-transform:uppercase">' + (f.status||'novo') + '</span>'
+      + '</div>';
+  });
+  container.innerHTML = '<div style="max-height:200px;overflow-y:auto">' + items.join('') + '</div>';
+}
+
 function renderSettings(){
   const hasPwd=!!state.sheetPwd;
   const expCats=state.categories.filter(c=>c.type==='expense');
@@ -3439,14 +3465,30 @@ function renderSettings(){
     <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="state.appLog=[];saveState();renderTab()">🗑️ Limpar log</button>`}
   </div>
 
-  <div style="font-size:10px;color:var(--red);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Zona de Perigo</div>
+  
+  <div style="font-family:var(--cinzel);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px">✝ Relatório de Bugs</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--text)">
+        <span style="font-family:var(--mono);font-weight:800;color:var(--crimson-bright)">${(state.feedbackLog||[]).filter(f=>f.status==='novo').length}</span>
+        <span style="color:var(--muted);font-size:12px"> novos · </span>
+        <span style="font-family:var(--mono);font-weight:700;color:var(--text)">${(state.feedbackLog||[]).length}</span>
+        <span style="color:var(--muted);font-size:12px"> total</span>
+      </div>
+      <button onclick="exportBugsTxt()" style="padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:var(--cinzel);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text);">📄 Exportar .txt</button>
+    </div>
+    <div id="bugsListContainer"></div>
+  </div>
+
+<div style="font-size:10px;color:var(--red);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Zona de Perigo</div>
   <div class="danger-zone">
     <div class="danger-title">🗑️ Apagar Dados Locais</div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Remove todos os dados salvos <strong>neste dispositivo</strong>.</p>
     <div class="alert alert-warning" style="margin-bottom:14px">⚠️ <strong>Atenção:</strong> Se o sync automático rodar depois, os dados do Google Sheets também serão apagados. Faça um backup JSON antes!</div>
     <button class="btn btn-danger" onclick="requestDeleteLocal()">🗑️ Apagar dados locais</button>
   </div>`;
-}
+
+  setTimeout(renderBugsList, 0);}
 
 
 
@@ -3773,6 +3815,53 @@ async function deleteSheetPeriod(from,to){
 // ══════════════════════════════════════════════════
 
 function openSheetDeleteModal(){document.getElementById('sheetDelFrom').value='';document.getElementById('sheetDelTo').value='';openModal('sheetDeleteModal')}
+
+
+function exportBugsTxt(){
+  const logs = state.feedbackLog || [];
+  if(!logs.length){ showToast('Nenhum bug registrado ainda','warn'); return; }
+  
+  const lines = [
+    '✝ MAÍRA'S MONEY — RELATÓRIO DE BUGS',
+    'v' + APP_VERSION + '-' + APP_BUILD + ' · ' + new Date().toLocaleString('pt-BR'),
+    '═'.repeat(60),
+    '',
+    'Total: ' + logs.length + ' · Novos: ' + logs.filter(f=>f.status==='novo').length,
+    '',
+    '═'.repeat(60),
+    ''
+  ];
+  
+  logs.slice().reverse().forEach((f, i) => {
+    const typeLabel = f.feedbackType==='bug'?'🐛 BUG':f.feedbackType==='sugestao'?'💡 SUGESTÃO':'❓ DÚVIDA';
+    lines.push('#' + (i+1) + ' · ' + typeLabel + ' · ' + (f.status||'novo').toUpperCase());
+    lines.push('Página: ' + (f.page||'?'));
+    lines.push('Data: ' + (f.date||'?'));
+    lines.push('Versão: ' + (f.version||'?'));
+    lines.push('Usuário: ' + (f.user||'?'));
+    if(f.element) lines.push('Elemento: ' + JSON.stringify(f.element));
+    lines.push('');
+    lines.push('Descrição:');
+    lines.push((f.description||'').trim());
+    lines.push('');
+    lines.push('─'.repeat(60));
+    lines.push('');
+  });
+  
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mairas-money-bugs-' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  // Mark all as read
+  (state.feedbackLog||[]).forEach(f => f.status='enviado');
+  saveState();
+  showToast('✝ Relatório exportado!');
+  renderTab();
+}
 
 // ── GOTHIC OVERRIDES ──
 function navigate(tab) {
