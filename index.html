@@ -24,13 +24,13 @@
   --text:#1a0a10;--muted:#5a3848;--muted2:#8a6070;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-accent);border-radius:2px}
 
 /* ── GOTHIC ATMOSPHERE ── */
-.bat-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bat-container{display:none!important;}
 .bat{position:absolute;opacity:0;}
 .bat1{animation:fly1 16s linear infinite;top:8%;}
 .bat2{animation:fly2 20s linear infinite;animation-delay:5s;top:22%;}
@@ -427,13 +427,27 @@ select option{background:var(--surface2);}
       <button class="modal-close" onclick="closeModal('cardModal')">×</button>
     </div>
     <div class="form-group"><label class="form-label">Nome do Cartão</label><input type="text" id="cardName" placeholder="Ex: Inter Visa"/></div>
-    <div class="form-group"><label class="form-label">Bandeira</label>
-      <select id="cardBrand">
-        <option value="visa">Visa</option>
-        <option value="master">Mastercard</option>
-        <option value="elo">Elo</option>
-        <option value="amex">Amex</option>
-        <option value="outros">Outros</option>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Bandeira</label>
+        <select id="cardBrand">
+          <option value="visa">Visa</option>
+          <option value="master">Mastercard</option>
+          <option value="elo">Elo</option>
+          <option value="amex">Amex</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select id="cardType">
+          <option value="fisico">💳 Físico</option>
+          <option value="virtual">📱 Virtual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select id="cardStatus">
+        <option value="ativo">✅ Ativo</option>
+        <option value="encerrado">❌ Encerrado</option>
       </select>
     </div>
     <div class="form-group"><label class="form-label">Dia de Fechamento</label><input type="number" id="cardClose" min="1" max="31" placeholder="Ex: 6"/></div>
@@ -444,6 +458,25 @@ select option{background:var(--surface2);}
       <button class="btn btn-secondary" style="flex:1" onclick="closeModal('cardModal')">Cancelar</button>
       <button class="btn btn-primary" style="flex:2" onclick="saveCard()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- IMPORTAR FATURA MODAL -->
+<div id="importFaturaModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'importFaturaModal')">
+  <div class="modal" style="max-width:520px;max-height:80vh;overflow-y:auto">
+    <div class="modal-header"><div class="modal-title">📥 Importar Fatura PDF</div><button class="modal-close" onclick="closeModal('importFaturaModal')">×</button></div>
+    <div id="importFaturaStep1">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Selecione o PDF da fatura do <strong>Banco Inter</strong>. As transações serão lidas e vinculadas ao cartão que você escolher.</div>
+      <div class="form-group"><label class="form-label">Arquivo PDF da Fatura</label>
+        <input type="file" id="importFaturaFile" accept=".pdf" style="font-size:13px"/>
+      </div>
+      <div id="importFaturaErr" style="display:none;color:var(--crimson-bright);font-size:12px;margin-top:8px"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" style="flex:1" id="importFaturaBtn" onclick="processImportFatura()">Continuar →</button>
+        <button class="btn btn-secondary" onclick="closeModal('importFaturaModal')">Cancelar</button>
+      </div>
+    </div>
+    <div id="importFaturaStep2" style="display:none"></div>
   </div>
 </div>
 
@@ -1496,6 +1529,8 @@ function openCardModal(card=null){
   document.getElementById('cardModalTitle').textContent=card?'Editar Cartão':'Novo Cartão';
   document.getElementById('cardName').value=card?card.name:'';
   document.getElementById('cardBrand').value=card?card.brand:'visa';
+  document.getElementById('cardType').value=card?card.tipo||'fisico':'fisico';
+  document.getElementById('cardStatus').value=card?card.status||'ativo':'ativo';
   document.getElementById('cardClose').value=card?card.closeDay:'';
   document.getElementById('cardDue').value=card?card.dueDay:'';
   document.getElementById('cardLimit').value=card?card.limit:'';
@@ -1511,7 +1546,7 @@ function saveCard(){
   const closeDay=parseInt(document.getElementById('cardClose').value);
   const dueDay=parseInt(document.getElementById('cardDue').value);
   if(!name||!closeDay||!dueDay)return alert('Preencha todos os campos.');
-  const card={id:state.editingCardId||uid(),name,brand:document.getElementById('cardBrand').value,closeDay,dueDay,limit:parseFloat(document.getElementById('cardLimit').value)||0,color:selectedCardColor};
+  const card={id:state.editingCardId||uid(),name,brand:document.getElementById('cardBrand').value,tipo:document.getElementById('cardType').value,status:document.getElementById('cardStatus').value,closeDay,dueDay,limit:parseFloat(document.getElementById('cardLimit').value)||0,color:selectedCardColor};
   if(state.editingCardId)state.cards=state.cards.map(x=>x.id===state.editingCardId?card:x);
   else state.cards=[...state.cards,card];
   saveState();closeModal('cardModal');renderTab();
@@ -2373,7 +2408,7 @@ function renderDashboard(){
       <div style="display:flex;gap:16px;align-items:center">
         ${buildPie(expByCat)}
         <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-          ${expByCat.slice(0,5).map(c=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px"><div style="width:8px;height:8px;border-radius:2px;background:${c.color};flex-shrink:0"></div><span style="flex:1;color:var(--muted)">${c.icon} ${c.label}</span><strong>${fmt(c.value)}</strong></div>`).join('')}
+          ${expByCat.slice(0,5).map(c=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px"><div style="width:8px;height:8px;border-radius:2px;background:${c.color};flex-shrink:0"></div><span style="flex:1;color:var(--muted)">${c.icon} ${c.label}</span><span style=\"color:var(--muted);font-size:11px\">${expense>0?((c.value/expense)*100).toFixed(0)+'%':''}</span><strong>${fmt(c.value)}</strong></div>`).join('')}
         </div>
       </div>`}
     </div>
@@ -2734,7 +2769,10 @@ function renderCredit(){
   document.getElementById('content').innerHTML=`
   <div class="page-header">
     <div class="page-title">Cartões de Crédito 💳</div>
-    <button class="btn btn-primary" onclick="openCardModal()">+ Novo Cartão</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="openImportFaturaModal()">📥 Importar Fatura</button>
+      <button class="btn btn-primary" onclick="openCardModal()">+ Novo Cartão</button>
+    </div>
   </div>
 
   ${state.cards.length===0?`<div class="card empty-state"><div class="empty-icon">💳</div><div class="empty-title">Nenhum cartão cadastrado</div><p>Cadastre seu cartão para controlar faturas e parcelamentos</p><br/><button class="btn btn-primary" onclick="openCardModal()">+ Cadastrar Cartão</button></div>`:`
@@ -2747,12 +2785,19 @@ function renderCredit(){
       const now=new Date();const today=now.getDate();
       const daysToClose=card.closeDay>=today?card.closeDay-today:30-(today-card.closeDay);
       const daysToDue=card.dueDay>=today?card.dueDay-today:30-(today-card.dueDay);
-      return`<div class="credit-card-visual" style="background:linear-gradient(135deg,${card.color},${card.color}88)">
+      return`<div class="credit-card-visual" style="background:linear-gradient(135deg,${card.color},${card.color}88);${card.status==='encerrado'?'opacity:.55;filter:grayscale(.4)':''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-          <div><div style="font-size:18px;font-weight:800;color:#fff">${card.name}</div><div style="font-size:12px;color:#ffffff88;margin-top:2px">${card.brand.toUpperCase()}</div></div>
+          <div>
+            <div style="font-size:18px;font-weight:800;color:#fff">${card.tipo==='virtual'?'📱':'💳'} ${card.name}</div>
+            <div style="font-size:12px;color:#ffffff88;margin-top:2px;display:flex;gap:8px;align-items:center">
+              <span>${card.brand.toUpperCase()}</span>
+              ${card.status==='encerrado'?'<span style="background:#ef444433;color:#fca5a5;padding:1px 6px;border-radius:10px;font-size:10px">Encerrado</span>':''}
+            </div>
+          </div>
           <div style="display:flex;gap:6px">
             <button class="tx-act-btn" onclick="openCardModal(state.cards.find(x=>x.id==='${card.id}'))" style="background:#ffffff22;border-color:#ffffff33;color:#fff">✏️</button>
             <button class="tx-act-btn del" onclick="deleteCard('${card.id}')" style="background:#ef444422;border-color:#ef444433;color:#ef4444">🗑️</button>
+            <button class="tx-act-btn" onclick="openImportFaturaModal('${card.id}')" style="background:#ffffff22;border-color:#ffffff33;color:#fff" title="Importar fatura PDF">📥</button>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-bottom:12px">
@@ -2913,15 +2958,27 @@ async function restoreFromSheets(silent=false){
   try{
     const res=await fetch(state.sheetUrl,{method:'GET',mode:'cors'});
     const data=JSON.parse(await res.text());
-    if(data.transactions?.length)state.transactions=data.transactions;
-    if(data.goals?.length)state.goals=data.goals;
-    if(data.investments?.length)state.investments=data.investments;
-    // restore API keys if saved in sheets
+    // merge: adiciona do Sheets apenas IDs que não existem localmente
+    if(data.transactions?.length){
+      const localIds=new Set(state.transactions.map(t=>t.id));
+      const newFromSheets=data.transactions.filter(t=>!localIds.has(t.id));
+      if(newFromSheets.length>0)state.transactions=[...state.transactions,...newFromSheets];
+    }
+    if(data.goals?.length){
+      const localIds=new Set(state.goals.map(g=>g.id));
+      const newFromSheets=data.goals.filter(g=>!localIds.has(g.id));
+      if(newFromSheets.length>0)state.goals=[...state.goals,...newFromSheets];
+    }
+    if(data.investments?.length){
+      const localIds=new Set(state.investments.map(i=>i.id));
+      const newFromSheets=data.investments.filter(i=>!localIds.has(i.id));
+      if(newFromSheets.length>0)state.investments=[...state.investments,...newFromSheets];
+    }
     if(data.claudeKey&&!state.claudeKey)state.claudeKey=data.claudeKey;
     if(data.geminiKey&&!state.geminiKey)state.geminiKey=data.geminiKey;
     if(data.aiProvider)state.aiProvider=data.aiProvider;
     saveState();syncState='ok';updateSyncUI();
-    addLog('sync',`Restaurado: ${data.transactions?.length||0} lançamentos`);
+    addLog('sync',`Restaurado: ${data.transactions?.length||0} lançamentos do Sheets`);
     if(!silent){renderTab();alert('✅ Dados restaurados do Sheets!')}
     else renderTab();
   }catch(e){
@@ -2988,10 +3045,11 @@ function toggleNewDevice(){
 // ── AUTH FUNCTIONS ──
 const APP_SESSION='mm_session';
 const APP_VERSION='1.2.5';
-const APP_BUILD='r1';
+const APP_BUILD='r3';
 function getLocalPwd(){return localStorage.getItem('mm_app_pwd')||''}
 function getLocalUser(){return localStorage.getItem('mm_username')||''}
-function setLocalAuth(user,pwd){localStorage.setItem('mm_username',user);localStorage.setItem('mm_app_pwd',pwd)}
+function normalizeUser(str){return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
+function setLocalAuth(user,pwd){localStorage.setItem('mm_username',normalizeUser(user));localStorage.setItem('mm_app_pwd',pwd)}
 function isSessionValid(){try{const s=JSON.parse(sessionStorage.getItem(APP_SESSION)||'{}');return s.valid&&(Date.now()-s.ts)<8*60*60*1000}catch{return false}}
 function setSession(){sessionStorage.setItem(APP_SESSION,JSON.stringify({valid:true,ts:Date.now()}))}
 
@@ -3043,6 +3101,158 @@ async function submitLock(){
     err.textContent='Usuário ou senha incorretos.';err.style.display='block';
   }
   document.getElementById('lockPwdInput').value='';
+}
+
+// ── IMPORTAR FATURA PDF INTER ─────────────────────
+let importFaturaPreselectedCardId = null;
+let parsedFaturaGroups = [];
+
+function openImportFaturaModal(preCardId=null){
+  importFaturaPreselectedCardId = preCardId || null;
+  parsedFaturaGroups = [];
+  document.getElementById('importFaturaFile').value='';
+  document.getElementById('importFaturaStep1').style.display='block';
+  document.getElementById('importFaturaStep2').style.display='none';
+  document.getElementById('importFaturaErr').style.display='none';
+  openModal('importFaturaModal');
+}
+
+async function processImportFatura(){
+  const file = document.getElementById('importFaturaFile').files[0];
+  if(!file){alert('Selecione um PDF.');return;}
+  const btn=document.getElementById('importFaturaBtn');
+  btn.disabled=true;btn.textContent='Lendo PDF...';
+  try{
+    const text = await extractPdfText(file);
+    parsedFaturaGroups = parseInterFatura(text);
+    if(!parsedFaturaGroups.length){throw new Error('Nenhuma transação encontrada. Verifique se é uma fatura Inter.');}
+    renderImportFaturaStep2();
+    document.getElementById('importFaturaStep1').style.display='none';
+    document.getElementById('importFaturaStep2').style.display='block';
+  }catch(e){
+    document.getElementById('importFaturaErr').textContent='Erro: '+e.message;
+    document.getElementById('importFaturaErr').style.display='block';
+  }
+  btn.disabled=false;btn.textContent='Continuar →';
+}
+
+async function extractPdfText(file){
+  return new Promise((res,rej)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const bytes=new Uint8Array(e.target.result);
+      let text='';
+      for(let i=0;i<bytes.length;i++){
+        const c=bytes[i];
+        if(c>=32&&c<127)text+=String.fromCharCode(c);
+        else if(c===10||c===13)text+='\n';
+      }
+      res(text);
+    };
+    reader.onerror=rej;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parseInterFatura(text){
+  const groups=[];
+  const cardHeaderRe=/CART[AÃ]O\s+(\d{4}\*{4}\d{4})/gi;
+  const parts=text.split(cardHeaderRe);
+  for(let i=1;i<parts.length;i+=2){
+    const block=parts[i+1]||'';
+    const txs=parseInterBlock(block);
+    if(txs.length) groups.push({cardSuffix:parts[i], txs});
+  }
+  if(!groups.length){
+    const allTxs=parseInterBlock(text);
+    if(allTxs.length) groups.push({cardSuffix:'????', txs:allTxs});
+  }
+  return groups;
+}
+
+function parseInterBlock(block){
+  const txs=[];
+  const monthMap={jan:1,fev:2,'mar':3,abr:4,'mai':5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+  const lineRe=/(\d{1,2})\s+de\s+([a-z]+)\.?\s+(\d{4})\s+(.+?)\s+R\$\s*([\d.,]+)/gi;
+  let m;
+  while((m=lineRe.exec(block))!==null){
+    const day=parseInt(m[1]);
+    const mon=monthMap[m[2].toLowerCase().slice(0,3)]||1;
+    const year=parseInt(m[3]);
+    const desc=m[4].trim().replace(/\s+/g,' ');
+    const valor=parseFloat(m[5].replace('.','').replace(',','.'));
+    if(!valor||valor<=0)continue;
+    if(/^total\s/i.test(desc))continue;
+    const date=`${year}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const fp=simpleHash(`${date}|${desc}|${valor}`);
+    const parcelMatch=desc.match(/\(Parcela\s+(\d+)\s+de\s+(\d+)\)/i);
+    txs.push({date,description:desc,valor,fp,
+      isParcel:!!parcelMatch,
+      parcelNum:parcelMatch?parseInt(parcelMatch[1]):null,
+      parcelTotal:parcelMatch?parseInt(parcelMatch[2]):null,
+    });
+  }
+  return txs;
+}
+
+function renderImportFaturaStep2(){
+  const ativos=state.cards.filter(c=>c.status!=='encerrado');
+  const existingFps=new Set(state.transactions.map(t=>simpleHash(`${t.date}|${t.description}|${t.amount}`)));
+  const html=parsedFaturaGroups.map((g,gi)=>{
+    const novos=g.txs.filter(t=>!existingFps.has(t.fp));
+    const dups=g.txs.filter(t=>existingFps.has(t.fp));
+    const preSelected=importFaturaPreselectedCardId&&gi===0?importFaturaPreselectedCardId:'';
+    return`<div style="margin-bottom:20px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:8px">Cartão ${g.cardSuffix}</div>
+      <div class="form-group"><label class="form-label">Vincular a:</label>
+        <select id="importCard_${gi}">
+          ${ativos.map(c=>`<option value="${c.id}"${c.id===preSelected?' selected':''}>${c.tipo==='virtual'?'📱':'💳'} ${c.name}</option>`).join('')}
+          <option value="__novo__">+ Criar novo cartão</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${novos.length} nova(s) · ${dups.length} duplicada(s) serão ignoradas</div>
+      <div style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
+        ${g.txs.map(t=>{
+          const isDup=existingFps.has(t.fp);
+          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);opacity:${isDup?'0.4':'1'}">
+            <div>
+              <div style="font-size:12px;font-weight:600">${t.description}${isDup?' <span style="color:var(--muted);font-size:10px">(já existe)</span>':''}</div>
+              <div style="font-size:11px;color:var(--muted)">${fmtDate(t.date)}</div>
+            </div>
+            <div style="font-weight:800;font-family:var(--mono);font-size:13px;color:var(--crimson-bright)">−${fmt(t.valor)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('importFaturaStep2').innerHTML=`
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px">✝ Revise e vincule os cartões</div>
+    ${html}
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" style="flex:1" onclick="confirmImportFatura()">✅ Importar</button>
+      <button class="btn btn-secondary" onclick="closeModal('importFaturaModal')">Cancelar</button>
+    </div>`;
+}
+
+function confirmImportFatura(){
+  const existingFps=new Set(state.transactions.map(t=>simpleHash(`${t.date}|${t.description}|${t.amount}`)));
+  let totalImported=0;
+  parsedFaturaGroups.forEach((g,gi)=>{
+    const cardId=document.getElementById(`importCard_${gi}`)?.value;
+    if(!cardId||cardId==='__novo__')return;
+    g.txs.filter(t=>!existingFps.has(t.fp)).forEach(t=>{
+      state.transactions.unshift({
+        id:uid(),type:'expense',amount:t.valor,
+        description:t.description,category:'outros',date:t.date,
+        recurrence:'none',tags:[],note:'Importado fatura Inter',
+        payment:'credit',cardId,createdAt:new Date().toISOString(),
+      });
+      totalImported++;
+    });
+  });
+  saveState();closeModal('importFaturaModal');renderTab();
+  if(totalImported>0){showToast(`✝ ${totalImported} transação(ões) importada(s)!`);}
+  else{showToast('Nenhuma transação nova.','warn');}
 }
 
 function simpleHash(str){let h=0;for(let i=0;i<str.length;i++)h=Math.imul(31,h)+str.charCodeAt(i)|0;return Math.abs(h).toString(36)}
@@ -3752,6 +3962,19 @@ document.addEventListener('keydown', e => {
 });
 
 // Fix globalSearchResults visibility
+function toggleGlobalSearch(){
+  const bar=document.getElementById('globalSearchBar');
+  if(!bar)return;
+  const visible=bar.style.display==='flex';
+  bar.style.display=visible?'none':'flex';
+  if(!visible){
+    const inp=document.getElementById('globalSearchInput');
+    if(inp){inp.value='';inp.focus();}
+    const res=document.getElementById('globalSearchResults');
+    if(res)res.style.display='none';
+  }
+}
+
 const origRunSearch = runGlobalSearch;
 function runGlobalSearch(q) {
   origRunSearch(q);
