@@ -30,27 +30,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 ::-webkit-scrollbar-thumb{background:var(--border-accent);border-radius:2px}
 
 /* ── GOTHIC ATMOSPHERE ── */
-.bat-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.bat{position:absolute;opacity:0;}
-.bat1{animation:fly1 16s linear infinite;top:8%;}
-.bat2{animation:fly2 20s linear infinite;animation-delay:5s;top:22%;}
-.bat3{animation:fly3 12s linear infinite;animation-delay:8s;top:50%;}
-.bat4{animation:fly4 24s linear infinite;animation-delay:12s;top:6%;}
-.bat5{animation:fly5 18s linear infinite;animation-delay:3s;top:65%;}
-@keyframes fly1{0%{left:-60px;opacity:0;transform:scaleY(1) scaleX(1);}5%{opacity:.7;}25%{transform:scaleY(.5) scaleX(1);}50%{transform:scaleY(1) scaleX(1);}75%{transform:scaleY(.4) scaleX(1);}95%{opacity:.5;}100%{left:calc(100vw + 60px);opacity:0;}}
-@keyframes fly2{0%{left:calc(100vw + 60px);opacity:0;transform:scaleY(1) scaleX(-1);}5%{opacity:.55;}30%{transform:scaleY(.5) scaleX(-1);}60%{transform:scaleY(1) scaleX(-1);}95%{opacity:.4;}100%{left:-60px;opacity:0;}}
-@keyframes fly3{0%{left:-45px;opacity:0;transform:scaleY(1) scaleX(1) scale(.75);}8%{opacity:.65;}20%{transform:scaleY(.4) scaleX(1) scale(.75);}40%{transform:scaleY(1) scaleX(1) scale(.75);}60%{transform:scaleY(.45) scaleX(1) scale(.75);}80%{transform:scaleY(1) scaleX(1) scale(.75);}92%{opacity:.45;}100%{left:calc(100vw + 45px);opacity:0;}}
-@keyframes fly4{0%{left:-80px;opacity:0;transform:scaleY(1) scaleX(1) scale(1.2);}6%{opacity:.45;}25%{transform:scaleY(.4) scaleX(1) scale(1.2) translateY(-6px);}50%{transform:scaleY(1) scaleX(1) scale(1.2);}75%{transform:scaleY(.5) scaleX(1) scale(1.2) translateY(-4px);}94%{opacity:.35;}100%{left:calc(100vw + 80px);opacity:0;}}
-
-#customBtn,#bugReportBtn-inner{position:fixed;bottom:24px;width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:900;box-shadow:0 4px 20px rgba(0,0,0,.8);transition:all .2s;color:var(--text);line-height:1;}
-#customBtn{right:76px;}
-#customBtn:hover{background:var(--crimson-faint);transform:scale(1.1);border-color:var(--crimson-bright);}
-#app-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center 30%;background-repeat:no-repeat;opacity:0;display:block;transition:opacity .3s;}
-@keyframes fly5{0%{left:calc(100vw + 55px);opacity:0;transform:scaleY(1) scaleX(-1) scale(.85);}8%{opacity:.6;}33%{transform:scaleY(.45) scaleX(-1) scale(.85);}66%{transform:scaleY(1) scaleX(-1) scale(.85);}92%{opacity:.4;}100%{left:-55px;opacity:0;}}
-.candle-left,.candle-right{position:fixed;bottom:0;pointer-events:none;z-index:0;opacity:.15;}
-.candle-left{left:8px;}.candle-right{right:8px;}
-@keyframes flicker{0%,100%{opacity:1}50%{opacity:.7}75%{opacity:.9}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+5%{opacity:.7;}25%{transform:scaleY(.5) scaleX(1);}50%{transform:scaleY(1) scaleX(1);}75%{transform:scaleY(.4) scaleX(1);}95%{opacity:.5;}100%{left:calc(100vw + 60px);opacity:0;}}
+5%{opacity:.55;}30%{transform:scaleY(.5) scaleX(-1);}60%{transform:scaleY(1) scaleX(-1);}95%{opacity:.4;}100%{left:-60px;opacity:0;}}
+8%{opacity:.65;}20%{transform:scaleY(.4) scaleX(1) scale(.75);}40%{transform:scaleY(1) scaleX(1) scale(.75);}60%{transform:scaleY(.45) scaleX(1) scale(.75);}80%{transform:scaleY(1) scaleX(1) scale(.75);}92%{opacity:.45;}100%{left:calc(100vw + 45px);opacity:0;}}
+6%{opacity:.45;}25%{transform:scaleY(.4) scaleX(1) scale(1.2) translateY(-6px);}50%{transform:scaleY(1) scaleX(1) scale(1.2);}75%{transform:scaleY(.5) scaleX(1) scale(1.2) translateY(-4px);}94%{opacity:.35;}100%{left:calc(100vw + 80px);opacity:0;}}
+8%{opacity:.6;}33%{transform:scaleY(.45) scaleX(-1) scale(.85);}66%{transform:scaleY(1) scaleX(-1) scale(.85);}92%{opacity:.4;}100%{left:-55px;opacity:0;}}
+50%{opacity:.7}75%{opacity:.9}}
+50%{opacity:.3}}
 
 /* ── LAYOUT ── */
 #app{display:flex;height:100vh;overflow:hidden;position:relative;z-index:1;}
@@ -266,8 +252,7 @@ select option{background:var(--surface2);}
 
 /* ── PRINT ── */
 @media print{
-  #sidebar,#topbar,.topbar-actions,#hamburger,.tx-actions,.btn,button,.bat-container,.candle-left,.candle-right{display:none!important;}
-  #main{margin:0;}
+  #sidebar,#topbar,.topbar-actions,#hamburger,.tx-actions,.btn,button,  #main{margin:0;}
   #content{padding:0;}
   body{background:#fff;color:#000;}
   .card{border:1px solid #ddd;break-inside:avoid;}
@@ -297,34 +282,6 @@ select option{background:var(--surface2);}
 <body>
 
 <!-- GOTHIC ATMOSPHERE -->
-<div class="bat-container">
-  <svg class="bat bat1" width="55" height="31" viewBox="0 0 1280 727"><g transform="translate(0,727) scale(0.1,-0.1)" fill="#8b1a30" stroke="none"><path d="M6936 7148 c10 -66 61 -214 104 -303 39 -78 169 -254 255 -345 92 -97 185 -214 177 -222 -4 -4 -23 -3 -42 2 -18 5 -36 8 -38 6 -7 -8 52 -33 89 -39 41 -6 120 -59 237 -159 102 -87 236 -233 227 -247 -13 -22 9 -84 45 -130 36 -45 38 -52 45 -144 7 -92 9 -98 31 -103 14 -4 44 -1 69 5 24 6 56 11 72 11 15 0 48 11 71 25 24 14 69 29 101 34 31 5 81 21 111 35 121 56 500 121 500 86 0 -15 21 -12 34 5 6 8 56 26 111 39 55 13 190 45 300 71 241 58 680 203 664 220 -3 2 -37 -1 -77 -7 -83 -12 -138 -5 -151 21 -10 17 -14 17 -63 4 -84 -22 -229 -28 -252 -11 -16 13 -36 10 -165 -23 -80 -20 -169 -40 -197 -43 -50 -6 -52 -6 -62 22 -6 18 -23 35 -47 46 -33 16 -38 16 -61 2 -23 -16 -26 -15 -92 44 -37 34 -71 64 -77 68 -12 8 -165 25 -165 25 -70 7 -113 16 -110 22 3 6 11 9 18 9 6 -1 12 2 12 7 0 5 -9 10 -20 11 -11 0 -26 1 -32 2 -7 1 -16 6 -20 11 -5 6 -8 4 -8 -5 0 -13 -1 -13 -11 0 -7 11 -12 12 -15 3 -3 -7 -12 -9 -20 -6 -8 3 -14 1 -14 -5 0 -6 6 -12 13 -15 25 -9 -2 -19 -33 -12 -50 11 -234 140 -311 218 -39 40 -97 110 -129 157 l-57 85 -69 18 c-115 29 -264 118 -367 218 -77 75 -94 87 -132 92 -115 16 -291 101 -389 189 -30 26 -57 48 -60 48 -4 0 -3 -19 0 -42z"/></g></svg>
-  <svg class="bat bat2" width="50" height="28" viewBox="0 0 1280 727"><g transform="translate(0,727) scale(0.1,-0.1)" fill="#7a1228" stroke="none"><path d="M10840 7030 c0 -5 -7 -7 -15 -4 -8 4 -15 1 -15 -5 0 -6 5 -11 12 -11 25 0 -7 -15 -90 -42 -144 -48 -282 -78 -377 -85 -69 -5 -107 -13 -165 -38 -109 -46 -283 -102 -379 -121 -46 -9 -116 -31 -155 -49 -104 -47 -282 -111 -351 -125 -78 -17 -87 -26 -53 -55 40 -34 103 -40 268 -25 80 7 165 15 190 17 l45 4 -35 -21 -35 -20 30 6 c17 4 41 12 55 19 89 43 343 109 465 120 58 5 61 4 84 -26 22 -28 24 -40 23 -125 0 -81 2 -96 18 -104 29 -16 168 0 230 25 30 12 90 28 134 35 l78 12 32 -28 c159 -143 275 -271 361 -401 41 -63 48 -80 50 -128 2 -68 25 -102 25 -37 0 28 4 42 13 42 7 0 73 -57 147 -128 164 -155 310 -279 381 -325 82 -52 292 -146 372 -167 40 -10 74 -16 76 -14 2 1 -18 31 -44 66 -87 115 -135 241 -135 358 l0 66 -56 54 c-96 95 -186 255 -200 353 -14 110 -10 103 -97 166 -89 64 -205 179 -254 251 -41 61 -89 158 -98 198 -7 32 -6 32 32 32 22 0 44 -5 51 -12 8 -8 12 -9 12 -1 0 26 -15 45 -49 62 -32 17 -39 17 -63 5 -26 -13 -29 -12 -86 44 -32 31 -66 62 -74 68 -15 12 -107 30 -218 42 -38 4 -63 11 -60 17 3 6 11 9 18 9 28 -4 9 13 -28 22 -28 8 -41 8 -44 0 -3 -7 -5 -7 -5 2 -1 14 -21 17 -21 2z"/></g></svg>
-  <svg class="bat bat3" width="40" height="23" viewBox="0 0 1280 727"><g transform="translate(0,727) scale(0.1,-0.1)" fill="#6a1020" stroke="none"><path d="M2960 6619 c-52 -4 -197 -21 -323 -36 -219 -27 -229 -27 -290 -11 -34 9 -64 14 -66 12 -11 -11 82 -125 174 -212 96 -92 111 -102 256 -173 85 -42 200 -93 257 -114 98 -37 142 -68 110 -80 -7 -3 -31 -12 -53 -20 l-40 -15 68 6 68 6 56 -43 c32 -23 74 -58 95 -77 l39 -35 -25 -26 c-33 -34 -66 -108 -66 -148 0 -38 -62 -108 -104 -119 -57 -14 -54 -82 4 -103 18 -6 47 -24 65 -39 22 -20 52 -33 95 -41 88 -18 110 -29 110 -59 0 -42 -77 -103 -225 -177 l-134 -68 -43 16 c-66 25 -78 20 -30 -12 56 -37 44 -46 -78 -60 -108 -13 -320 -55 -394 -78 -72 -23 -221 -111 -283 -167 -60 -55 -66 -71 -23 -61 45 10 127 -11 294 -74 83 -32 207 -74 275 -95 l124 -37 96 25 c129 34 524 106 579 106 42 0 49 5 129 80 46 44 143 119 215 167 103 68 151 109 234 197 l105 111 35 -40 c20 -22 31 -30 25 -18 -17 35 -13 38 15 12 l27 -24 -19 29 -18 29 22 -14 c12 -8 23 -18 23 -24 1 -5 5 4 8 20 9 38 -2 53 -45 61 -19 3 -34 9 -34 13 0 4 25 31 55 61 30 30 55 60 55 67 0 6 8 17 18 22 9 6 12 11 6 11 -6 0 -14 13 -17 28 -3 16 -22 53 -41 82 -20 30 -36 58 -36 62 0 12 48 10 71 -2 10 -6 19 -7 19 -2 0 5 -10 14 -22 21 -22 11 -22 11 5 6 25 -5 27 -3 18 12 -5 10 -19 26 -32 37 -20 17 -24 17 -55 2 -39 -18 -25 -34 -123 139 -47 82 -90 140 -172 230 -104 113 -149 173 -210 277 -23 38 -34 47 -75 58 -63 17 -512 216 -601 266 -37 22 -70 39 -73 40 -3 1 -48 -3 -100 -7z"/></g></svg>
-  <svg class="bat bat4" width="68" height="39" viewBox="0 0 1280 727"><g transform="translate(0,727) scale(0.1,-0.1)" fill="#5a0e1e" stroke="none"><path d="M307 6591 c-29 -34 -64 -121 -73 -182 -8 -49 16 -107 93 -223 29 -43 50 -83 47 -87 -3 -5 -24 -9 -47 -10 -56 -1 -20 -17 40 -18 51 -1 81 -13 155 -64 81 -56 148 -152 148 -212 0 -36 -11 -31 -44 20 -19 31 -26 53 -22 69 3 12 0 31 -8 41 -26 36 -76 -23 -76 -91 0 -13 5 -44 12 -68 15 -55 -2 -115 -44 -156 -15 -16 -28 -38 -28 -49 0 -28 37 -51 83 -51 21 0 51 -7 67 -15 25 -13 38 -13 102 -1 96 19 112 11 161 -79 75 -137 130 -323 152 -508 7 -52 5 -62 -19 -97 -14 -22 -26 -52 -26 -67 0 -27 1 -27 23 11 12 22 27 41 32 43 10 3 47 -74 131 -272 25 -60 54 -121 64 -135 9 -14 30 -52 45 -85 44 -95 241 -282 362 -344 23 -11 44 -21 46 -21 2 0 -2 28 -10 63 -30 127 7 314 81 412 26 34 26 35 10 72 -30 70 -44 137 -44 214 0 101 14 170 50 247 33 71 34 66 -30 162 -42 63 -85 163 -101 240 -15 70 -8 272 10 293 18 22 22 22 65 -8 20 -13 36 -20 36 -15 0 5 -9 14 -21 20 -11 7 -18 14 -15 17 3 3 17 -2 31 -11 28 -19 34 -11 8 11 -17 13 -16 14 4 10 21 -5 22 -3 11 16 -7 12 -13 27 -13 32 0 6 -20 9 -44 7 l-44 -4 7 59 c12 93 12 163 1 163 -6 0 -16 9 -22 20 -7 10 -46 42 -88 70 -41 28 -75 55 -75 60 0 5 18 13 41 16 22 4 36 10 31 13 -5 3 -13 16 -17 29 -4 14 -12 21 -20 18 -8 -3 -16 0 -18 7 -3 8 -12 6 -28 -8 -13 -11 -18 -13 -11 -5 14 16 16 30 3 30 -5 0 -14 -13 -21 -30 -12 -28 -15 -29 -54 -23 -91 14 -191 63 -221 110 -10 15 -23 47 -30 73 l-11 45 -76 6 c-121 10 -210 42 -265 95 l-47 45 -86 3 c-138 7 -253 39 -306 88 -21 19 -22 19 -47 -11z"/></g></svg>
-  <svg class="bat bat5" width="46" height="26" viewBox="0 0 1280 727"><g transform="translate(0,727) scale(0.1,-0.1)" fill="#9a1a32" stroke="none"><path d="M4850 1990 c0 -7 -7 -10 -15 -6 -22 8 -18 -3 8 -24 l22 -18 -25 -6 c-14 -2 -106 -7 -205 -10 -123 -4 -211 -12 -277 -25 -157 -33 -367 -61 -452 -61 -75 0 -81 -2 -121 -35 -57 -46 -346 -225 -443 -274 l-79 -40 -12 -58 c-7 -32 -15 -112 -17 -178 -6 -138 -18 -189 -52 -216 -14 -11 -22 -22 -18 -26 11 -11 205 14 322 42 145 35 349 139 477 242 16 13 42 23 58 23 25 0 30 -5 36 -30 11 -55 29 -45 23 13 -1 12 11 23 37 34 55 23 288 79 360 87 61 7 63 6 69 -18 3 -14 23 -41 44 -60 29 -26 39 -44 44 -79 4 -25 14 -51 21 -57 8 -7 15 -24 15 -39 0 -15 5 -32 12 -39 15 -15 50 -16 65 -1 6 6 30 15 54 20 29 7 58 24 84 48 58 55 137 95 171 87 63 -16 144 -110 215 -247 l22 -43 -39 -33 c-44 -37 -43 -39 17 -18 66 24 70 19 63 -82 -4 -48 -1 -128 5 -177 9 -79 16 -97 53 -155 45 -69 148 -181 167 -181 6 0 13 11 17 24 8 34 54 73 169 146 55 34 138 92 184 128 l83 65 -6 50 c-12 85 -7 396 6 420 10 19 6 26 -38 62 -77 63 -161 152 -229 242 -59 78 -129 144 -252 235 -64 47 -67 61 -13 56 22 -2 40 -2 40 -1 0 22 -29 52 -58 61 -32 10 -39 9 -58 -9 l-21 -20 -67 55 c-37 30 -76 58 -87 61 -10 4 -19 10 -19 14 0 4 -63 6 -140 4 -128 -3 -161 3 -130 22 6 3 10 11 10 17 0 7 -6 6 -15 -2 -12 -10 -15 -9 -16 6 0 12 -3 14 -6 6 -4 -10 -8 -10 -19 -1 -11 9 -14 9 -14 -1 0 -10 -3 -10 -15 0 -12 10 -15 10 -15 0z"/></g></svg>
-</div>
-
-<!-- CANDLES -->
-<div class="candle-left">
-  <svg width="24" height="180" viewBox="0 0 24 180" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="12" cy="16" rx="6" ry="10" fill="#e0003a" opacity="0.3"><animate attributeName="opacity" values="0.3;0.6;0.2;0.5;0.3" dur="3s" repeatCount="indefinite"/></ellipse>
-    <ellipse cx="12" cy="20" rx="3" ry="6" fill="#ffcc44" opacity="0.6"><animate attributeName="opacity" values="0.6;0.9;0.4;0.8;0.6" dur="2s" repeatCount="indefinite"/></ellipse>
-    <rect x="8" y="22" width="8" height="120" rx="2" fill="#c8a45a" opacity="0.4"/>
-    <rect x="6" y="140" width="12" height="20" rx="2" fill="#7a5e30" opacity="0.5"/>
-  </svg>
-</div>
-<div class="candle-right">
-  <svg width="24" height="180" viewBox="0 0 24 180" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="12" cy="16" rx="6" ry="10" fill="#e0003a" opacity="0.3"><animate attributeName="opacity" values="0.4;0.2;0.7;0.3;0.4" dur="2.5s" repeatCount="indefinite"/></ellipse>
-    <ellipse cx="12" cy="20" rx="3" ry="6" fill="#ffcc44" opacity="0.6"><animate attributeName="opacity" values="0.7;0.4;0.9;0.5;0.7" dur="1.8s" repeatCount="indefinite"/></ellipse>
-    <rect x="8" y="22" width="8" height="120" rx="2" fill="#c8a45a" opacity="0.4"/>
-    <rect x="6" y="140" width="12" height="20" rx="2" fill="#7a5e30" opacity="0.5"/>
-  </svg>
-</div>
-
-<div id="app-bg"></div>
-
 <!-- LOCK SCREEN -->
 <div id="lockScreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:999;align-items:center;justify-content:center;flex-direction:column;">
   <div style="width:100%;max-width:400px;padding:24px;">
@@ -364,23 +321,6 @@ select option{background:var(--surface2);}
       </div>
     </div>
   </div>
-
-  <div style="font-family:var(--cinzel);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px">✝ O que há de novo</div>
-  <div class="card" style="margin-bottom:24px">
-    \${CHANGELOG.slice(0,6).map(function(c){
-      var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fca5a5':'background:#1a2030;color:#93c5fd';
-      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
-        +'<span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--cinzel);'+badge+'">'
-        +(c.type==='novo'?'✨ NOVO':c.type==='fix'?'🐛 FIX':'⚡ OK')
-        +'</span>'
-        +'<div style="flex:1">'
-        +'<div style="font-size:12px;color:var(--text)">'+(c.text||'')+'</div>'
-        +'<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--cinzel);letter-spacing:1px">v'+(c.version||'')+'</div>'
-        +'</div>'
-        +'</div>';
-    }).join('')}
-  </div>
-
 </div>
 
 <!-- ONBOARDING -->
@@ -984,6 +924,7 @@ let state={
   aiProvider:'claude',claudeKey:'',geminiKey:'',aiEnabled:true,
   sheetUrl:'',sheetPwd:'',projMonth:2000,
   appLog:[],
+  feedbackLog:[],
   txFilter:{q:'',cat:'all',type:'all',from:'',to:''},
   reportFrom:'',reportTo:'',
   editingTxId:null,editingGoalId:null,depositGoalId:null,
@@ -1021,6 +962,7 @@ function loadState(){
   state.sheetPwd=L('ff_sheetpwd','');
   state.projMonth=L('ff_projmonth',2000);
   state.appLog=L('ff_log',[]);
+  state.feedbackLog=L('ff_feedback_log',[]);
   state.bgOpacity=L('mm_bg_opacity',0);
   state.bgPosition=L('mm_bg_position','center 30%');
   state.bgImage=L('mm_bg_image',null);
@@ -1039,6 +981,7 @@ function saveState(){
   S('ff_gk',state.geminiKey);S('ff_ai_enabled',state.aiEnabled);S('ff_sheeturl',state.sheetUrl);
   S('ff_sheetpwd',state.sheetPwd);S('ff_projmonth',state.projMonth);
   S('ff_log',state.appLog.slice(0,200));
+  S('ff_feedback_log',state.feedbackLog||[]);
   S('mm_bg_opacity',state.bgOpacity);
   S('mm_bg_position',state.bgPosition);
   if(state.bgImage!==undefined)S('mm_bg_image',state.bgImage);
@@ -1064,20 +1007,6 @@ const uid=()=>Math.random().toString(36).slice(2,10);
 const cat=id=>state.categories.find(c=>c.id===id)||{label:id,color:'#64748b',icon:'📦'};
 const catsByType=type=>state.categories.filter(c=>c.type===type);
 
-const APP_VERSION='1.2.6';
-const APP_BUILD='r2';
-const CHANGELOG=[
-  {version:'1.2.6-r2',type:'novo',text:'Personalização de fundo — troque a imagem e ajuste opacidade pelo botão 🎨'},
-  {version:'1.2.6-r2',type:'novo',text:'Botão 🦇 para registrar bugs diretamente na tela'},
-  {version:'1.2.6-r2',type:'novo',text:'Changelog nas configurações — histórico de mudanças'},
-  {version:'1.2.6-r1',type:'novo',text:'Botão de reportar bug fixo no canto inferior direito'},
-  {version:'1.2.6-r1',type:'fix',text:'showToast não estava definida — adicionada com estilo gótico'},
-  {version:'1.2.5',type:'fix',text:'syncNow envia estado completo — deletados somem do Sheets'},
-  {version:'1.2.5',type:'fix',text:'Categorias de carro removidas do padrão'},
-  {version:'1.2.4',type:'fix',text:'cardModal ausente no HTML — corrigido'},
-  {version:'1.2.3',type:'fix',text:'Navegação da sidebar não funcionava — listener adicionado'},
-];
-
 // ── TOAST NOTIFICATION ──
 function showToast(msg, type='ok'){
   let el = document.getElementById('mm-toast');
@@ -1101,6 +1030,21 @@ function showToast(msg, type='ok'){
   clearTimeout(el._timer);
   el._timer = setTimeout(() => { el.style.opacity = '0'; }, 2800);
 }
+
+
+const APP_VERSION='1.2.6';
+const APP_BUILD='r2';
+const CHANGELOG=[
+  {version:'1.2.6-r2',type:'novo',text:'Personalização de fundo — troque a imagem e ajuste opacidade pelo botão 🎨'},
+  {version:'1.2.6-r2',type:'novo',text:'Botão 🦇 para registrar bugs diretamente na tela'},
+  {version:'1.2.6-r2',type:'novo',text:'Importação de fatura Inter — leia o PDF direto no app'},
+  {version:'1.2.6-r2',type:'novo',text:'Changelog nas configurações — histórico de mudanças'},
+  {version:'1.2.6-r1',type:'fix',text:'showToast adicionada com estilo gótico'},
+  {version:'1.2.5',type:'fix',text:'syncNow envia estado completo — deletados somem do Sheets'},
+  {version:'1.2.5',type:'fix',text:'Categorias de carro removidas'},
+  {version:'1.2.4',type:'fix',text:'cardModal ausente no HTML — corrigido'},
+];
+
 
 function addLog(type,msg){
   state.appLog.unshift({ts:new Date().toISOString(),type,msg});
@@ -2267,6 +2211,54 @@ function generatePDF(){
   setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 
+
+// ══════════════════════════════════════════════════
+// EXPORT BUGS
+// ══════════════════════════════════════════════════
+
+function exportBugs(){
+  const novos=(state.feedbackLog||[]).filter(f=>f.status==='novo');
+  if(novos.length===0){alert('Nenhum bug registrado! ✅');return;}
+  const sep='═'.repeat(51);
+  const lines=[
+    sep,
+    '✝ Grimório v'+APP_VERSION+' — Relatório de Bugs',
+    'Gerado em: '+new Date().toLocaleString('pt-BR'),
+    'Total: '+novos.length+' registro(s) novo(s)',
+    sep,
+  ];
+  novos.forEach(function(f,i){
+    const ctx=f.context||{};
+    lines.push('');
+    lines.push('['+String(i+1)+'] '+(f.feedbackType||f.type||'bug').toUpperCase()+' — '+(f.page||'?')+' — v'+(f.version||'?'));
+    lines.push('Data: '+(f.date||'?'));
+    lines.push('Usuário: '+(f.user||'anon'));
+    lines.push('Descrição: '+f.description);
+    if(ctx.appState){
+      const s=ctx.appState;
+      lines.push('');
+      lines.push('📊 Estado do app:');
+      lines.push('  Aba: '+s.tab+' | Transações: '+s.transactions+' | Metas: '+s.goals+' | Inv: '+s.investments+' | Cartões: '+s.cards);
+      lines.push('  Sync: '+s.syncStatus);
+    }
+    if(ctx.recentLog&&ctx.recentLog.length){
+      lines.push('');
+      lines.push('📋 Últimas ações:');
+      ctx.recentLog.forEach(function(l){lines.push('  ['+(l.type||'?').toUpperCase()+'] '+(l.msg||''));});
+    }
+    lines.push('─'.repeat(51));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='grimorio-bugs-'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  (state.feedbackLog||[]).forEach(function(f){if(f.status==='novo')f.status='enviado';});
+  saveState();
+  showToast('✅ '+novos.length+' bug(s) exportado(s) como .txt!');
+}
+
 function exportJSON(){
   const data={transactions:state.transactions,goals:state.goals,categories:state.categories,investments:state.investments,cards:state.cards};
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=`mairas-money-${todayStr()}.json`;a.click();
@@ -2800,6 +2792,7 @@ function renderCredit(){
   <div class="page-header">
     <div class="page-title">Cartões de Crédito 💳</div>
     <button class="btn btn-primary" onclick="openCardModal()">+ Novo Cartão</button>
+    <button class="btn btn-secondary" onclick="openInterImport()">📥 Importar Fatura Inter</button>
   </div>
 
   ${state.cards.length===0?`<div class="card empty-state"><div class="empty-icon">💳</div><div class="empty-title">Nenhum cartão cadastrado</div><p>Cadastre seu cartão para controlar faturas e parcelamentos</p><br/><button class="btn btn-primary" onclick="openCardModal()">+ Cadastrar Cartão</button></div>`:`
@@ -2997,7 +2990,7 @@ async function restoreFromSheets(silent=false){
 }
 
 function bootApp(){
-  applyTheme();applyBg();navigate('dashboard');document.getElementById('bugReportBtn').style.display='block';document.getElementById('customBtn').style.display='flex';
+  applyTheme();applyBg();navigate('dashboard');showFloatingBtns();
   if(state.sheetUrl)setTimeout(()=>syncNow(),1500);
 }
 
@@ -3272,27 +3265,16 @@ function renderSettings(){
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div style="font-family:var(--cinzel);font-size:13px;font-weight:700;color:var(--text);letter-spacing:2px">Maíra's Money</div>
       <div style="text-align:right">
-        <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--crimson-bright)">v${APP_VERSION}</div>
-        <div style="font-size:10px;color:var(--muted);font-family:var(--cinzel);letter-spacing:1px">build ${APP_BUILD}</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--crimson-bright)">v\${APP_VERSION}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--cinzel);letter-spacing:1px">build \${APP_BUILD}</div>
       </div>
     </div>
   </div>
-
   <div style="font-family:var(--cinzel);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px">✝ O que há de novo</div>
-  <div class="card" style="margin-bottom:24px">
-    ${CHANGELOG.slice(0,6).map(function(c){
-      var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fca5a5':'background:#1a2030;color:#93c5fd';
-      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
-        +'<span style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--cinzel);letter-spacing:1px;'+badge+'">'
-        +(c.type==='novo'?'✨ NOVO':c.type==='fix'?'🐛 FIX':'⚡ OK')
-        +'</span>'
-        +'<div style="flex:1">'
-        +'<div style="font-size:12px;color:var(--text)">'+(c.text||'')+'</div>'
-        +'<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--cinzel);letter-spacing:1px">v'+(c.version||'')+'</div>'
-        +'</div>'
-        +'</div>';
-    }).join('')}
+  <div class="card" style="margin-bottom:20px">
+    \${CHANGELOG.slice(0,6).map(function(c){var badge=c.type==='novo'?'background:var(--crimson-bright);color:#fff':c.type==='fix'?'background:#3d1a1a;color:#fca5a5':'background:#1a2030;color:#93c5fd';return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--cinzel);letter-spacing:1px;'+badge+'">'+(c.type==='novo'?'✨ NOVO':c.type==='fix'?'🐛 FIX':'⚡ OK')+'</span><div style="flex:1"><div style="font-size:12px;color:var(--text)">'+(c.text||'')+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--cinzel);letter-spacing:1px">v'+(c.version||'')+'</div></div></div>';}).join('')}
   </div>
+
 
   <div style="font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:10px">Segurança</div>
   <div class="card" style="margin-bottom:24px">
@@ -3408,6 +3390,7 @@ function renderSettings(){
       <label class="btn btn-secondary" style="cursor:pointer;text-align:left">📤 Importar backup JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"/></label>
       <button class="btn btn-secondary" onclick="exportPDF()" style="text-align:left">📄 Exportar relatório em PDF</button>
       <button class="btn btn-secondary" onclick="exportAnonymous()" style="text-align:left">🔒 Exportar relatório anônimo para IA<div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px">Só tipo, categoria e valor — sem dados pessoais</div></button>
+      <button class="btn btn-secondary" onclick="exportBugs()" style="text-align:left">🐛 Exportar relatório de bugs<div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px">Baixa como .txt todos os bugs registrados com status 'novo'</div></button>
     </div>
   </div>
 
@@ -3759,80 +3742,6 @@ async function deleteSheetPeriod(from,to){
 
 function openSheetDeleteModal(){document.getElementById('sheetDelFrom').value='';document.getElementById('sheetDelTo').value='';openModal('sheetDeleteModal')}
 
-
-// ── BACKGROUND CUSTOMIZATION ──
-function applyBg(){
-  var el=document.getElementById('app-bg');
-  if(!el)return;
-  if(state.bgImage){
-    el.style.backgroundImage='url('+state.bgImage+')';
-    el.style.backgroundPosition=state.bgPosition||'center 30%';
-    el.style.opacity=state.bgOpacity||0;
-  } else {
-    el.style.backgroundImage='none';
-    el.style.opacity=0;
-  }
-}
-
-function openCustomModal(){
-  document.getElementById('customModal').style.display='flex';
-  document.getElementById('bgOpacitySlider').value=Math.round((state.bgOpacity||0)*100);
-  document.getElementById('bgOpacityVal').textContent=Math.round((state.bgOpacity||0)*100)+'%';
-  var pos=state.bgPosition||'center 30%';
-  var sel=document.getElementById('bgPositionSel');
-  if(pos.includes('top'))sel.value='top';
-  else if(pos.includes('bottom'))sel.value='bottom';
-  else sel.value='center';
-}
-
-function closeCustomModal(){
-  document.getElementById('customModal').style.display='none';
-}
-
-function handleBgUpload(input){
-  var file=input.files[0];
-  if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      var canvas=document.createElement('canvas');
-      var max=800,w=img.width,h=img.height;
-      if(w>max){h=Math.round(h*max/w);w=max;}
-      if(h>max){w=Math.round(w*max/h);h=max;}
-      canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.6);
-      state.bgImage=compressed;
-      applyBg();saveState();
-      showToast('✝ Imagem de fundo aplicada!');
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeBgImage(){
-  state.bgImage=null;
-  var el=document.getElementById('app-bg');
-  if(el){el.style.backgroundImage='none';el.style.opacity=0;}
-  state.bgOpacity=0;state.bgPosition='center 30%';
-  saveState();
-  showToast('✝ Imagem removida. Fundo das trevas restaurado.');
-  closeCustomModal();
-}
-
-function saveBgSettings(){
-  var opacity=parseInt(document.getElementById('bgOpacitySlider').value)/100;
-  var posVal=document.getElementById('bgPositionSel').value;
-  var posMap={top:'center top',center:'center 30%',bottom:'center bottom'};
-  state.bgOpacity=opacity;
-  state.bgPosition=posMap[posVal]||'center 30%';
-  applyBg();saveState();
-  showToast('✝ Fundo configurado!');
-  closeCustomModal();
-}
-
 // ── GOTHIC OVERRIDES ──
 function navigate(tab) {
   state.tab = tab;
@@ -3897,78 +3806,97 @@ function runGlobalSearch(q) {
   const res = document.getElementById('globalSearchResults');
   if (res) res.style.display = q && q.length >= 2 ? 'block' : 'none';
 }
-</script>
-<!-- BUG REPORT BUTTON -->
-<button id="customBtn" onclick="openCustomModal()" title="Personalizar fundo" style="position:fixed;bottom:24px;right:76px;z-index:900;width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.8);transition:all .2s;display:none;">🎨</button>
 
-<div id="bugReportBtn" style="position:fixed;bottom:24px;right:24px;z-index:500;display:none;">
-  <button onclick="openBugReport()" style="background:var(--surface);border:.5px solid var(--border-accent);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.5);transition:all .2s;" title="Reportar Bug" onmouseover="this.style.background='var(--crimson-faint)'" onmouseout="this.style.background='var(--surface)'">🦇</button>
-</div>
+// ── FLOATING BUTTONS ──
+function showFloatingBtns(){
+  const el=document.getElementById('floatingBtns');
+  if(el){el.style.display='flex';}
+  // also show individually
+  ['customBtn','bugBtn'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b)b.style.display='flex';
+  });
+}
 
-<!-- CUSTOMIZAÇÃO MODAL -->
-<div id="customModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
-  <div style="background:var(--surface);border:.5px solid var(--border-accent);border-radius:10px;padding:24px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.8)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <div style="font-family:var(--cinzel);font-size:14px;font-weight:700;letter-spacing:3px;color:var(--crimson-bright);text-transform:uppercase">🎨 Personalizar Fundo</div>
-      <button onclick="closeCustomModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted)">✕</button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div>
-        <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px">Imagem de fundo</div>
-        <label style="display:block;padding:12px;background:var(--surface2);border:1px dashed var(--border-accent);border-radius:6px;cursor:pointer;text-align:center;font-size:13px;color:var(--muted);font-style:italic">
-          📁 Escolher imagem do dispositivo
-          <input type="file" accept="image/*" style="display:none" onchange="handleBgUpload(this)">
-        </label>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-          <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px">Opacidade</div>
-          <span id="bgOpacityVal" style="font-size:12px;font-weight:700;color:var(--crimson-bright)">0%</span>
-        </div>
-        <input type="range" id="bgOpacitySlider" min="0" max="30" value="0" style="width:100%;accent-color:var(--crimson)" oninput="document.getElementById('bgOpacityVal').textContent=this.value+'%'">
-      </div>
-      <div>
-        <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px">Posição vertical</div>
-        <select id="bgPositionSel" style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--cinzel);font-size:11px;letter-spacing:1px">
-          <option value="top">Topo</option>
-          <option value="center" selected>Centro</option>
-          <option value="bottom">Baixo</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:4px">
-        <button onclick="removeBgImage()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--muted);font-family:var(--cinzel);font-size:10px;letter-spacing:1px;text-transform:uppercase">🗑️ Remover</button>
-        <button onclick="saveBgSettings()" style="flex:2;padding:10px;background:var(--crimson);border:none;border-radius:6px;cursor:pointer;color:#fff;font-family:var(--cinzel);font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase">✝ Salvar</button>
-      </div>
-    </div>
-  </div>
-</div>
+// ── BG CUSTOMIZATION ──
+function applyBg(){
+  let el=document.getElementById('app-bg');
+  if(!el){
+    el=document.createElement('div');
+    el.id='app-bg';
+    el.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center 30%;background-repeat:no-repeat;opacity:0;transition:opacity .3s;';
+    document.body.insertBefore(el,document.body.firstChild);
+  }
+  if(state.bgImage){
+    el.style.backgroundImage='url('+state.bgImage+')';
+    el.style.backgroundPosition=state.bgPosition||'center 30%';
+    el.style.opacity=state.bgOpacity||0;
+  } else {
+    el.style.backgroundImage='none';
+    el.style.opacity=0;
+  }
+}
 
-<div id="bugReportModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'bugReportModal')">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <div class="modal-title">✝ Reportar Bug</div>
-      <button class="modal-close" onclick="closeModal('bugReportModal')">×</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">O que aconteceu?</label>
-      <textarea id="bugDesc" rows="4" placeholder="Descreva o problema com o máximo de detalhes..."></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Onde aconteceu?</label>
-      <select id="bugPage"><option value="">Selecione a tela...</option><option>Dashboard</option><option>Lançamentos</option><option>Relatórios</option><option>Metas</option><option>Projeções</option><option>Investimentos</option><option>Cartões</option><option>Configurações</option><option>Outra</option></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Gravidade</label>
-      <select id="bugSeverity"><option value="low">🟡 Leve</option><option value="medium" selected>🟠 Médio</option><option value="high">🔴 Grave</option></select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('bugReportModal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="submitBugReport()">✝ Enviar</button>
-    </div>
-  </div>
-</div>
+function openCustomModal(){
+  const m=document.getElementById('customModal');
+  if(!m)return;
+  m.style.display='flex';
+  document.getElementById('bgOpacitySlider').value=Math.round((state.bgOpacity||0)*100);
+  document.getElementById('bgOpacityVal').textContent=Math.round((state.bgOpacity||0)*100)+'%';
+  const pos=state.bgPosition||'center 30%';
+  const sel=document.getElementById('bgPositionSel');
+  if(pos.includes('top'))sel.value='top';
+  else if(pos.includes('bottom'))sel.value='bottom';
+  else sel.value='center';
+}
 
-<script>
+function closeCustomModal(){
+  const m=document.getElementById('customModal');
+  if(m)m.style.display='none';
+}
+
+function handleBgUpload(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height,max=800;
+      if(w>max){h=Math.round(h*max/w);w=max;}
+      if(h>max){w=Math.round(w*max/h);h=max;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      state.bgImage=canvas.toDataURL('image/jpeg',0.6);
+      applyBg();saveState();
+      showToast('✝ Imagem aplicada!');
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeBgImage(){
+  state.bgImage=null;
+  applyBg();
+  state.bgOpacity=0;state.bgPosition='center 30%';
+  saveState();
+  showToast('✝ Fundo removido.');
+  closeCustomModal();
+}
+
+function saveBgSettings(){
+  const opacity=parseInt(document.getElementById('bgOpacitySlider').value)/100;
+  const posVal=document.getElementById('bgPositionSel').value;
+  const posMap={top:'center top',center:'center 30%',bottom:'center bottom'};
+  state.bgOpacity=opacity;
+  state.bgPosition=posMap[posVal]||'center 30%';
+  applyBg();saveState();
+  showToast('✝ Fundo configurado!');
+  closeCustomModal();
+}
+
+// ── BUG REPORT ──
 function openBugReport(){
   document.getElementById('bugDesc').value='';
   document.getElementById('bugPage').value='';
@@ -3981,26 +3909,303 @@ function submitBugReport(){
   const page=document.getElementById('bugPage').value;
   const sev=document.getElementById('bugSeverity').value;
   if(!desc){showToast('Descreva o problema','warn');return;}
-  
-  const report={
-    desc, page, severity:sev,
+  if(!state.feedbackLog)state.feedbackLog=[];
+  state.feedbackLog.push({
+    feedbackType:'bug',page,description:desc,
+    severity:sev,user:getLocalUser()||'anon',
     version:APP_VERSION+'-'+APP_BUILD,
-    tab:state.tab||'',
-    ua:navigator.userAgent.slice(0,80),
-    ts:new Date().toLocaleString('pt-BR')
-  };
-  
-  // Save to log
-  addLog('bug', `[${sev.toUpperCase()}] ${page}: ${desc.slice(0,80)}`);
-  
-  // Save to localStorage for persistence
-  const bugs = JSON.parse(localStorage.getItem('mm_bugs')||'[]');
-  bugs.push(report);
-  localStorage.setItem('mm_bugs', JSON.stringify(bugs.slice(-50)));
-  
+    date:new Date().toLocaleString('pt-BR'),status:'novo'
+  });
+  saveState();
+  addLog('feedback','[BUG '+sev+'] '+page+': '+desc.slice(0,60));
   closeModal('bugReportModal');
-  showToast('✝ Bug reportado! Obrigada ♥');
+  showToast('✝ Bug registrado! Exporte em Configurações.');
 }
+
+// ── INTER CSV IMPORT ──
+let interTxPreview=[];
+
+function openInterImport(){
+  const sel=document.getElementById('interCardSelect');
+  if(sel){
+    sel.innerHTML=(state.cards||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    if(!sel.innerHTML)sel.innerHTML='<option value="">Nenhum cartão cadastrado</option>';
+  }
+  document.getElementById('interImportPreview').style.display='none';
+  document.getElementById('interImportBtn').style.display='none';
+  const inp=document.getElementById('interCsvInput');
+  if(inp)inp.value='';
+  interTxPreview=[];
+  openModal('interImportModal');
+}
+
+function parseInterCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const text=e.target.result;
+    const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+    interTxPreview=[];
+    
+    // Inter CSV format: "Data";"Categoria";"Descrição";"Valor"
+    // or: Data,Lançamento,Categoria,Valor
+    const sep=lines[0].includes(';')?';':',';
+    
+    for(let i=1;i<lines.length;i++){
+      const cols=lines[i].split(sep).map(c=>c.replace(/"/g,'').trim());
+      if(cols.length<3)continue;
+      
+      // Try to parse date (DD/MM/YYYY or YYYY-MM-DD)
+      let dateStr='',desc='',catStr='',valStr='';
+      
+      if(cols[0].match(/\d{2}\/\d{2}\/\d{4}/)){
+        // DD/MM/YYYY format
+        const [d,m,y]=cols[0].split('/');
+        dateStr=y+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0');
+        catStr=cols[1]||'';
+        desc=cols[2]||'';
+        valStr=cols[3]||cols[cols.length-1];
+      } else if(cols[0].match(/\d{4}-\d{2}-\d{2}/)){
+        dateStr=cols[0];
+        catStr=cols[1]||'';
+        desc=cols[2]||'';
+        valStr=cols[3]||cols[cols.length-1];
+      } else {
+        // Try last column as value
+        dateStr=new Date().toISOString().split('T')[0];
+        desc=cols[1]||cols[0]||'';
+        catStr=cols[0]||'outros';
+        valStr=cols[cols.length-1];
+      }
+      
+      // Parse value
+      let amount=parseFloat(valStr.replace(/[^\d,.-]/g,'').replace(',','.'));
+      if(isNaN(amount)||amount===0)continue;
+      
+      // Positive = expense for credit card
+      const isExpense=amount>0;
+      amount=Math.abs(amount);
+      
+      // Map Inter categories to app categories
+      const catMap={
+        'alimentacao':'alimentacao','alimentação':'alimentacao',
+        'transporte':'transporte','uber':'transporte','ifood':'alimentacao',
+        'saude':'saude','saúde':'saude','farmacia':'saude','farmácia':'saude',
+        'lazer':'lazer','entretenimento':'lazer',
+        'compras':'compras','vestuario':'vestuario','vestuário':'vestuario',
+        'servicos':'outros','serviços':'outros',
+        'pagamento':'outros','pix':'outros','transferencia':'outros','transferência':'outros',
+      };
+      const catKey=catStr.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const mappedCat=catMap[catKey]||'outros';
+      
+      // Skip payments to card (pix, pagamento fatura)
+      const descLower=desc.toLowerCase();
+      if(descLower.includes('pagamento') && descLower.includes('fatura'))continue;
+      if(descLower.includes('pix') && amount>500 && !isExpense)continue;
+      
+      interTxPreview.push({
+        date:dateStr,
+        description:desc||catStr||'Lançamento Inter',
+        category:mappedCat,
+        amount,
+        type:isExpense?'expense':'income',
+        original:lines[i],
+        selected:true,
+      });
+    }
+    
+    renderInterPreview();
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function renderInterPreview(){
+  const preview=document.getElementById('interImportPreview');
+  const list=document.getElementById('interImportList');
+  const count=document.getElementById('interImportCount');
+  const total=document.getElementById('interImportTotal');
+  const btn=document.getElementById('interImportBtn');
+  
+  if(!interTxPreview.length){
+    showToast('Nenhum lançamento encontrado no arquivo','warn');
+    return;
+  }
+  
+  preview.style.display='block';
+  btn.style.display='block';
+  
+  const selected=interTxPreview.filter(t=>t.selected);
+  const totalAmt=selected.reduce((s,t)=>s+(t.type==='expense'?t.amount:0),0);
+  count.textContent=interTxPreview.length+' lançamentos encontrados ('+selected.length+' selecionados)';
+  total.textContent='R$ '+totalAmt.toFixed(2).replace('.',',');
+  
+  list.innerHTML=interTxPreview.map((tx,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);${!tx.selected?'opacity:.4':''}">
+      <input type="checkbox" ${tx.selected?'checked':''} onchange="interTxPreview[${i}].selected=this.checked;renderInterPreview()" style="accent-color:var(--crimson);width:14px;height:14px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--cinzel);letter-spacing:1px">${tx.date} · ${tx.category}</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:${tx.type==='expense'?'var(--crimson-bright)':'var(--green-bright)'};white-space:nowrap">
+        ${tx.type==='expense'?'-':'+'} R$ ${tx.amount.toFixed(2).replace('.',',')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function confirmInterImport(){
+  const cardId=document.getElementById('interCardSelect').value;
+  const faturaMonth=document.getElementById('interFaturaMonth').value;
+  const selected=interTxPreview.filter(t=>t.selected);
+  
+  if(!selected.length){showToast('Selecione ao menos um lançamento','warn');return;}
+  
+  let imported=0;
+  selected.forEach(tx=>{
+    const newTx={
+      id:Date.now().toString()+Math.random().toString(36).slice(2,6),
+      type:tx.type,
+      amount:tx.amount,
+      date:tx.date,
+      description:tx.description,
+      category:tx.category,
+      cardId:cardId||'',
+      faturaMonth:faturaMonth||'',
+      faturaPaid:false,
+      isFaturaPayment:false,
+      recurrence:'none',
+      tags:['inter','importado'],
+      note:'Importado da fatura Inter',
+      createdAt:new Date().toISOString(),
+    };
+    state.transactions.push(newTx);
+    imported++;
+  });
+  
+  saveState();
+  if(state.sheetUrl)syncItem({action:'sync_all',transactions:state.transactions});
+  closeModal('interImportModal');
+  showToast('✝ '+imported+' lançamentos importados!');
+  navigate('transactions');
+}
+
+// helper sync single call
+async function syncItem(payload){
+  if(!state.sheetUrl)return;
+  try{await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});}catch(e){}
+}
+
 </script>
+<!-- FLOATING BUTTONS -->
+<div id="floatingBtns" style="display:none;position:fixed;bottom:24px;right:24px;z-index:900;display:none;flex-direction:column;gap:10px;align-items:center;">
+  <button id="customBtn" onclick="openCustomModal()" title="Personalizar fundo" style="width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.6);transition:all .2s;color:var(--text);" onmouseover="this.style.background='var(--crimson-faint)'" onmouseout="this.style.background='var(--surface)'">🎨</button>
+  <button id="bugBtn" onclick="openBugReport()" title="Relatar Bug" style="width:42px;height:42px;border-radius:50%;background:var(--surface);border:.5px solid var(--border-accent);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.6);transition:all .2s;color:var(--text);" onmouseover="this.style.background='var(--crimson-faint)'" onmouseout="this.style.background='var(--surface)'">🦇</button>
+</div>
+
+<!-- CUSTOM BG MODAL -->
+<div id="customModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+  <div style="background:var(--surface);border:.5px solid var(--border-accent);border-radius:10px;padding:24px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.8)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div style="font-family:var(--cinzel);font-size:13px;font-weight:700;letter-spacing:3px;color:var(--crimson-bright);text-transform:uppercase">🎨 Personalizar Fundo</div>
+      <button onclick="closeCustomModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted)">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <label style="display:block;padding:12px;background:var(--surface2);border:1px dashed var(--border-accent);border-radius:6px;cursor:pointer;text-align:center;font-size:13px;color:var(--muted);font-style:italic">
+        📁 Escolher imagem do dispositivo
+        <input type="file" accept="image/*" style="display:none" onchange="handleBgUpload(this)">
+      </label>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px">Opacidade</div>
+          <span id="bgOpacityVal" style="font-size:12px;font-weight:700;color:var(--crimson-bright)">0%</span>
+        </div>
+        <input type="range" id="bgOpacitySlider" min="0" max="30" value="0" style="width:100%;accent-color:var(--crimson)" oninput="document.getElementById('bgOpacityVal').textContent=this.value+'%'">
+      </div>
+      <div>
+        <div style="font-family:var(--cinzel);font-size:9px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px">Posição vertical</div>
+        <select id="bgPositionSel" style="width:100%;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--cinzel);font-size:11px;letter-spacing:1px">
+          <option value="top">Topo</option><option value="center" selected>Centro</option><option value="bottom">Baixo</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="removeBgImage()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--muted);font-family:var(--cinzel);font-size:10px;letter-spacing:1px;text-transform:uppercase">🗑️ Remover</button>
+        <button onclick="saveBgSettings()" style="flex:2;padding:10px;background:var(--crimson);border:none;border-radius:6px;cursor:pointer;color:#fff;font-family:var(--cinzel);font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase">✝ Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUG REPORT MODAL -->
+<div id="bugReportModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'bugReportModal')">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">✝ Relatar Bug</div>
+      <button class="modal-close" onclick="closeModal('bugReportModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">O que aconteceu?</label>
+      <textarea id="bugDesc" rows="4" placeholder="Descreva o problema..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tela</label>
+      <select id="bugPage"><option value="">Selecione...</option><option>Dashboard</option><option>Lançamentos</option><option>Relatórios</option><option>Metas</option><option>Investimentos</option><option>Cartões</option><option>Configurações</option><option>Outra</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Gravidade</label>
+      <select id="bugSeverity"><option value="low">🟡 Leve</option><option value="medium" selected>🟠 Médio</option><option value="high">🔴 Grave</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bugReportModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitBugReport()">✝ Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTER FATURA IMPORT MODAL -->
+<div id="interImportModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'interImportModal')">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title">✝ Importar Fatura Inter</div>
+      <button class="modal-close" onclick="closeModal('interImportModal')">×</button>
+    </div>
+    <div style="margin-bottom:14px">
+      <p style="font-size:12px;color:var(--muted);font-style:italic;margin-bottom:12px">Importe a fatura do cartão Inter em CSV. Baixe pelo app do Inter: <strong style="color:var(--text)">Cartão → Fatura → Exportar</strong></p>
+      <label style="display:block;padding:16px;background:var(--surface2);border:1.5px dashed var(--border-accent);border-radius:6px;cursor:pointer;text-align:center;font-family:var(--cinzel);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">
+        📁 Selecionar arquivo CSV da fatura
+        <input type="file" id="interCsvInput" accept=".csv,.txt" style="display:none" onchange="parseInterCSV(this)">
+      </label>
+    </div>
+    <div id="interImportPreview" style="display:none">
+      <div style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">✝ Pré-visualização</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:6px">
+        <span style="font-size:12px;color:var(--muted);font-style:italic" id="interImportCount">0 lançamentos encontrados</span>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--crimson-bright)" id="interImportTotal">R$ 0,00</span>
+      </div>
+      <div id="interImportList" style="max-height:280px;overflow-y:auto;background:var(--surface2);border-radius:6px;margin-bottom:12px"></div>
+      <div class="form-group">
+        <label class="form-label">Mês da fatura</label>
+        <select id="interFaturaMonth" style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;color:var(--text);font-family:var(--cinzel);font-size:11px;width:100%">
+          <option value="">Selecione o mês...</option>
+          <option value="2026-01">Janeiro 2026</option><option value="2026-02">Fevereiro 2026</option>
+          <option value="2026-03">Março 2026</option><option value="2026-04">Abril 2026</option>
+          <option value="2026-05">Maio 2026</option><option value="2026-06">Junho 2026</option>
+          <option value="2026-07">Julho 2026</option><option value="2026-08">Agosto 2026</option>
+          <option value="2026-09">Setembro 2026</option><option value="2026-10">Outubro 2026</option>
+          <option value="2026-11">Novembro 2026</option><option value="2026-12">Dezembro 2026</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cartão</label>
+        <select id="interCardSelect"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('interImportModal')">Cancelar</button>
+      <button id="interImportBtn" class="btn btn-primary" onclick="confirmInterImport()" style="display:none">✝ Importar Lançamentos</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
