@@ -3925,13 +3925,7 @@ function saveBgSettings(){
   closeCustomModal();
 }
 
-// ── BUG REPORT ──
-function openBugReport(){
-  document.getElementById('bugDesc').value='';
-  document.getElementById('bugPage').value='';
-  document.getElementById('bugSeverity').value='medium';
-  openModal('bugReportModal');
-}
+
 
 function submitBugReport(){
   const desc=document.getElementById('bugDesc').value.trim();
@@ -4125,6 +4119,154 @@ async function syncItem(payload){
   try{await fetch(state.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});}catch(e){}
 }
 
+
+
+// ── BUG REPORT v2 ──
+let _bugType = 'bug';
+let _bugPickedElement = null;
+
+const TAB_LABELS = {
+  dashboard:'Dashboard', transactions:'Lançamentos', reports:'Relatórios',
+  goals:'Metas', projections:'Projeções', investments:'Investimentos',
+  credit:'Cartões', settings:'Configurações', import:'Importar'
+};
+
+function openBugReport(){
+  _bugType = 'bug';
+  _bugPickedElement = null;
+  document.getElementById('bugDesc').value = '';
+  document.getElementById('bugPickerResult').style.display = 'none';
+  document.getElementById('bugPickerText').innerHTML = 'Apontar elemento com problema <span style="opacity:.5">(opcional)</span>';
+  document.getElementById('bugPickerIcon').textContent = '🎯';
+  document.getElementById('bugPickerBtn').style.borderColor = '#3a1a2a';
+
+  // Detect current page
+  const pageLabel = TAB_LABELS[state.tab] || state.tab || 'Dashboard';
+  document.getElementById('bugPageDetected').textContent = pageLabel;
+
+  // Reset type buttons
+  setBugType('bug', true);
+
+  document.getElementById('bugReportModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('bugDesc').focus(), 100);
+}
+
+function closeBugReport(){
+  document.getElementById('bugReportModal').style.display = 'none';
+  stopElementPicker(false);
+}
+
+function setBugType(type, silent){
+  _bugType = type;
+  const types = {
+    bug:      {id:'bugTypeBug',      border:'var(--crimson-muted)',   bg:'var(--crimson-faint)',   color:'var(--crimson-bright)'},
+    sugestao: {id:'bugTypeSugestao', border:'#2a4a1a',                bg:'rgba(40,80,20,.15)',      color:'#5cb870'},
+    duvida:   {id:'bugTypeDuvida',   border:'#1a2a4a',                bg:'rgba(20,40,80,.15)',      color:'#6a9fff'},
+  };
+  Object.entries(types).forEach(([t, cfg]) => {
+    const btn = document.getElementById(cfg.id);
+    if(!btn) return;
+    if(t === type){
+      btn.style.border = '1.5px solid ' + cfg.border;
+      btn.style.background = cfg.bg;
+      btn.style.color = cfg.color;
+    } else {
+      btn.style.border = '1.5px solid #2e2020';
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--muted)';
+    }
+  });
+}
+
+function startElementPicker(){
+  // Hide modal temporarily
+  document.getElementById('bugReportModal').style.display = 'none';
+  const overlay = document.getElementById('pickerOverlay');
+  const highlight = document.getElementById('pickerHighlight');
+  overlay.style.display = 'block';
+
+  function onMove(e){
+    // Hide overlay temporarily to get element beneath
+    overlay.style.pointerEvents = 'none';
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    overlay.style.pointerEvents = '';
+    if(!el || el === overlay) return;
+    const rect = el.getBoundingClientRect();
+    highlight.style.display = 'block';
+    highlight.style.top = (rect.top + window.scrollY) + 'px';
+    highlight.style.left = (rect.left + window.scrollX) + 'px';
+    highlight.style.width = rect.width + 'px';
+    highlight.style.height = rect.height + 'px';
+    overlay._hoveredEl = el;
+  }
+
+  function onClick(e){
+    e.preventDefault(); e.stopPropagation();
+    const el = overlay._hoveredEl;
+    if(el){
+      // Build a descriptor
+      const tag = el.tagName.toLowerCase();
+      const id = el.id ? '#' + el.id : '';
+      const cls = el.className && typeof el.className === 'string'
+        ? '.' + el.className.trim().split(/\s+/).slice(0,2).join('.') : '';
+      const text = (el.textContent||'').trim().slice(0,40);
+      _bugPickedElement = {tag, id, cls, text};
+
+      const desc = (id || cls || tag) + (text ? ' "' + text + '"' : '');
+      document.getElementById('bugPickerResult').style.display = 'block';
+      document.getElementById('bugPickerResult').textContent = '✅ Elemento: ' + desc;
+      document.getElementById('bugPickerText').textContent = 'Elemento selecionado!';
+      document.getElementById('bugPickerIcon').textContent = '✅';
+      document.getElementById('bugPickerBtn').style.borderColor = 'var(--green)';
+    }
+    stopElementPicker(true);
+  }
+
+  function onKey(e){
+    if(e.key === 'Escape') stopElementPicker(false);
+  }
+
+  overlay._onMove = onMove; overlay._onClick = onClick; overlay._onKey = onKey;
+  overlay.addEventListener('mousemove', onMove);
+  overlay.addEventListener('click', onClick);
+  document.addEventListener('keydown', onKey);
+}
+
+function stopElementPicker(restore){
+  const overlay = document.getElementById('pickerOverlay');
+  if(overlay._onMove) overlay.removeEventListener('mousemove', overlay._onMove);
+  if(overlay._onClick) overlay.removeEventListener('click', overlay._onClick);
+  if(overlay._onKey) document.removeEventListener('keydown', overlay._onKey);
+  overlay.style.display = 'none';
+  document.getElementById('pickerHighlight').style.display = 'none';
+  if(restore) document.getElementById('bugReportModal').style.display = 'flex';
+  else document.getElementById('bugReportModal').style.display = 'none';
+}
+
+function submitBugReport(){
+  const desc = document.getElementById('bugDesc').value.trim();
+  if(!desc){ showToast('Descreva o problema ✝', 'warn'); return; }
+
+  if(!state.feedbackLog) state.feedbackLog = [];
+  const entry = {
+    feedbackType: _bugType,
+    page: document.getElementById('bugPageDetected').textContent,
+    description: desc,
+    element: _bugPickedElement || null,
+    user: getLocalUser() || 'anon',
+    version: APP_VERSION + '-' + APP_BUILD,
+    date: new Date().toLocaleString('pt-BR'),
+    status: 'novo'
+  };
+  state.feedbackLog.push(entry);
+  saveState();
+  addLog('feedback', '[' + _bugType.toUpperCase() + '] ' + entry.page + ': ' + desc.slice(0,60));
+  closeBugReport();
+
+  const msgs = {bug: '✝ Bug registrado!', sugestao: '✝ Sugestão registrada!', duvida: '✝ Dúvida registrada!'};
+  showToast(msgs[_bugType] || '✝ Enviado!');
+}
+
 </script>
 <!-- FLOATING BUTTONS -->
 <button id="customBtn" onclick="openCustomModal()" title="Personalizar fundo">🎨</button>
@@ -4164,11 +4306,6 @@ async function syncItem(payload){
   </div>
 </div>
 
-<!-- BUG REPORT MODAL -->
-<div id="bugReportModal" class="modal-backdrop" style="display:none" onclick="backdropClose(event,'bugReportModal')">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <div class="modal-title">✝ Relatar Bug</div>
       <button class="modal-close" onclick="closeModal('bugReportModal')">×</button>
     </div>
     <div class="form-group">
@@ -4233,6 +4370,66 @@ async function syncItem(payload){
       <button id="interImportBtn" class="btn btn-primary" onclick="confirmInterImport()" style="display:none">✝ Importar Lançamentos</button>
     </div>
   </div>
+</div>
+
+<!-- BUG REPORT MODAL v2 -->
+<div id="bugReportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);">
+  <div style="background:#141014;border:.5px solid #3a1a2a;border-radius:14px;padding:24px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.9);">
+    
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:22px;">🦇</span>
+        <span style="font-family:var(--cinzel);font-size:15px;font-weight:700;letter-spacing:2px;color:var(--text);">Relatar Problema</span>
+      </div>
+      <button onclick="closeBugReport()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1;padding:4px 8px;border-radius:6px;">×</button>
+    </div>
+
+    <!-- Página detectada -->
+    <div style="display:flex;align-items:center;gap:8px;background:#1a0d18;border:.5px solid #2e1525;border-radius:8px;padding:10px 14px;margin-bottom:18px;">
+      <span style="font-size:14px;">📍</span>
+      <span style="font-family:var(--cinzel);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Página detectada:</span>
+      <span id="bugPageDetected" style="font-family:var(--cinzel);font-size:11px;font-weight:700;letter-spacing:1px;color:var(--crimson-bright);text-transform:uppercase;">Dashboard</span>
+    </div>
+
+    <!-- Tipo -->
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Tipo</div>
+      <div style="display:flex;gap:8px;">
+        <button id="bugTypeBug" onclick="setBugType('bug')" style="flex:1;padding:10px 8px;border-radius:8px;border:1.5px solid var(--crimson-muted);background:var(--crimson-faint);cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:1px;color:var(--crimson-bright);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">🐛 Bug</button>
+        <button id="bugTypeSugestao" onclick="setBugType('sugestao')" style="flex:1;padding:10px 8px;border-radius:8px;border:1.5px solid #2e2020;background:transparent;cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:1px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">💡 Sugestão</button>
+        <button id="bugTypeDuvida" onclick="setBugType('duvida')" style="flex:1;padding:10px 8px;border-radius:8px;border:1.5px solid #2e2020;background:transparent;cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:1px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">❓ Dúvida</button>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Descrição</div>
+      <textarea id="bugDesc" rows="4" placeholder="Descreva o problema ou sugestão com o máximo de detalhes possível..." style="width:100%;background:#1a0d18;border:.5px solid #2e1525;border-radius:8px;padding:12px;color:var(--text);font-family:var(--font);font-size:13px;resize:vertical;outline:none;line-height:1.5;"></textarea>
+    </div>
+
+    <!-- Apontar elemento -->
+    <div style="margin-bottom:20px;">
+      <button id="bugPickerBtn" onclick="startElementPicker()" style="width:100%;padding:11px;background:#1a0d18;border:.5px dashed #3a1a2a;border-radius:8px;cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:1px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;">
+        <span id="bugPickerIcon">🎯</span>
+        <span id="bugPickerText">Apontar elemento com problema <span style="opacity:.5;">(opcional)</span></span>
+      </button>
+      <div id="bugPickerResult" style="display:none;margin-top:8px;padding:8px 12px;background:#0d0810;border:.5px solid #2e1525;border-radius:6px;font-size:11px;color:var(--muted);font-family:var(--mono);"></div>
+    </div>
+
+    <!-- Rodapé -->
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeBugReport()" style="flex:1;padding:12px;background:#1a0d18;border:.5px solid #2e1525;border-radius:8px;cursor:pointer;font-family:var(--cinzel);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);">Cancelar</button>
+      <button onclick="submitBugReport()" style="flex:2;padding:12px;background:var(--crimson);border:none;border-radius:8px;cursor:pointer;font-family:var(--cinzel);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">✝ Enviar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ELEMENT PICKER OVERLAY -->
+<div id="pickerOverlay" style="display:none;position:fixed;inset:0;z-index:99998;cursor:crosshair;">
+  <div id="pickerHighlight" style="position:absolute;border:2px solid var(--crimson-bright);border-radius:4px;background:rgba(180,0,40,.1);pointer-events:none;display:none;transition:all .05s;"></div>
+  <div id="pickerTooltip" style="position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--crimson);color:#fff;padding:8px 20px;border-radius:20px;font-family:var(--cinzel);font-size:11px;letter-spacing:2px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 20px rgba(180,0,40,.5);">✝ Clique no elemento com problema · ESC para cancelar</div>
 </div>
 
 </body>
