@@ -3109,6 +3109,7 @@ async function submitLock(){
     err.style.display='none';setSession();
     document.getElementById('lockScreen').style.display='none';
     document.getElementById('app').style.display='flex';
+    bootApp();
     if(state.sheetUrl)setTimeout(()=>restoreFromSheets(true),500);
     return;
   }
